@@ -1,715 +1,307 @@
-/* ============================================================
-   Lumina Learn — styles.css (Premium Refinement)
-   WCAG 2.1 AA compliant, performance-optimised, immersive theme
-   ============================================================ */
+/**
+ * @fileoverview Lumina Learn — Futuristic AI Dashboard Theme
+ * Implementation of Premium Cyber-Glass Design System.
+ */
 
-/* ── 1. DESIGN TOKENS ─────────────────────────────────────── */
 :root {
-    /* Colours */
-    --bg-dark: #0f111a;
-    --bg-darker: #08090d;
-    --panel-bg: rgba(25, 28, 41, 0.7);
-    --panel-border: rgba(255, 255, 255, 0.08);
-
+    /* Futuristic Color Palette */
+    --bg-deep:          #0a0a0f;
+    --bg-card:          rgba(16, 16, 24, 0.7);
+    --panel-border:     rgba(255, 255, 255, 0.08);
+    
+    /* Accents */
+    --cyan:             #00f5ff;
+    --pink:             #ff00c8;
+    --violet:           #8a2be2;
+    --cyan-glow:        rgba(0, 245, 255, 0.3);
+    --pink-glow:        rgba(255, 0, 200, 0.3);
+    
     /* Text */
-    --text-main: #f0f2f8;
-    --text-muted: #b3b9cc;
-    --text-bright: #ffffff;
-
-    /* Accent palette */
-    --accent-primary: #6366f1;
-    /* Indigo */
-    --accent-primary-glow: rgba(99, 102, 241, 0.4);
-    --accent-secondary: #ec4899;
-    /* Pink */
-    --accent-tertiary: #14b8a6;
-    /* Teal */
-    --accent-gold: #f59e0b;
-    --accent-gold-glow: rgba(245, 158, 11, 0.3);
-
-    /* Semantic */
-    --success: #10b981;
-    --error: #ef4444;
-    --warning: #f59e0b;
-
-    /* Focus */
-    --focus-ring: 0 0 0 3px #fff, 0 0 0 5px var(--accent-primary);
-
-    /* Fonts */
-    --font-sans: 'Inter', sans-serif;
-    --font-display: 'Outfit', sans-serif;
-
-    /* Transitions */
-    --transition-fast: 0.2s ease;
-    --transition-normal: 0.3s ease;
-    --transition-slow: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    --text-primary:     #f0f0f5;
+    --text-secondary:   #a0a0b0;
+    
+    /* Shadows & Glows */
+    --shadow-main:      0 8px 32px 0 rgba(0, 0, 0, 0.8);
+    --glass-blur:       blur(16px);
+    
+    /* Spacing */
+    --radius-lg:        1.25rem;
+    --radius-md:        0.75rem;
 }
 
-/* ── 2. AGENT TERMINAL ──────────────────────────────────── */
-.agent-terminal {
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 0.75rem;
-    padding: 1rem;
-    text-align: left;
-    font-family: 'Courier New', monospace;
-    font-size: 0.85rem;
-    color: var(--accent-tertiary);
-    border: 1px solid rgba(20, 184, 166, 0.2);
-    min-height: 120px;
-}
-
-.terminal-line {
-    margin-bottom: 0.5rem;
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-}
-
-.terminal-line i {
-    font-size: 0.7rem;
-    opacity: 0.6;
-}
-
-/* ── 3. ACCESSIBILITY UTILITIES ──────────────────────────── */
-.skip-link {
-    position: absolute;
-    top: -40px;
-    left: 0;
-    z-index: 9999;
-    border-radius: 0 0 1rem 1rem;
-    text-decoration: none;
-    font-weight: 700;
-    transition: top 0.3s ease;
-    background: #000;
-    color: #fff;
-    padding: 0.5rem 1rem;
-}
-
-/* Show when focused (important for accessibility) */
-.skip-link:focus {
-    top: 0;
-}
-
-.skip-link:focus {
-    top: 0;
-}
-
-/* ── 3. RESET & BASE ─────────────────────────────────────── */
-
-html {
-    scroll-behavior: smooth;
-    font-size: 16px;
+/* ── 1. BASE & RESET ─────────────────────────────────────── */
+* {
+    margin: 0; padding: 0; box-sizing: border-box;
 }
 
 body {
-    font-family: var(--font-sans);
-    background-color: var(--bg-darker);
-    color: var(--text-main);
-    line-height: 1.6;
+    background-color: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
 }
 
-h1,
-h2,
-h3,
-h4 {
-    font-family: var(--font-display);
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-}
-
-/* ── 3. PREMIUM BACKGROUND EFFECTS ───────────────────────── */
+/* ── 2. LAYOUT: SPLIT SCREEN ────────────────────────────── */
 .app-container {
-    position: relative;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    z-index: 1;
+    height: 100vh;
 }
 
-/* Background Orbs */
-.bg-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(100px);
-    z-index: -2;
-    opacity: 0.4;
-    will-change: transform;
-    animation: float 25s infinite ease-in-out alternate;
-    contain: layout style;
-}
-
-.orb-1 {
-    width: 500px;
-    height: 500px;
-    background: var(--accent-primary-glow);
-    top: -150px;
-    left: -100px;
-}
-
-.orb-2 {
-    width: 400px;
-    height: 400px;
-    background: rgba(236, 72, 153, 0.2);
-    bottom: 5%;
-    right: -50px;
-    animation-delay: -7s;
-}
-
-.orb-3 {
-    width: 350px;
-    height: 350px;
-    background: rgba(20, 184, 166, 0.15);
-    top: 30%;
-    left: 15%;
-    animation-delay: -12s;
-}
-
-/* Grid Pattern Overlay */
-.bg-grid {
-    position: fixed;
+.sticky-header {
+    position: sticky;
     top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    background-image:
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    /* Fade out the grid at the edges */
-    mask-image: radial-gradient(circle at 50% 50%, black, transparent 80%);
-    -webkit-mask-image: radial-gradient(circle at 50% 50%, black, transparent 80%);
-    pointer-events: none;
-}
-
-/* ── 4. TYPOGRAPHY & UTILS ───────────────────────────────── */
-.gradient-text {
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: shine 5s linear infinite;
-}
-
-.text-center {
-    text-align: center;
-}
-
-.mt-4 {
-    margin-top: 1.5rem;
-}
-
-.mb-2 {
-    margin-bottom: 1rem;
-}
-
-.visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    border: 0;
-}
-
-:focus-visible {
-    outline: none;
-    box-shadow: var(--focus-ring);
-}
-
-.badge {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 0.35rem 0.85rem;
-    border-radius: 2rem;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text-main);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-/* ── 5. GLASS PANELS ─────────────────────────────────────── */
-.glass-panel {
-    background: var(--panel-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--panel-border);
-    border-radius: 1.5rem;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-    contain: layout;
-    transition: transform var(--transition-normal), border-color var(--transition-normal);
-}
-
-.glass-panel:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-}
-
-.glass-navbar {
-    background: rgba(8, 9, 13, 0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    z-index: 1000;
+    background: rgba(10, 10, 15, 0.8);
+    backdrop-filter: var(--glass-blur);
     border-bottom: 1px solid var(--panel-border);
-    padding: 1.25rem 2.5rem;
+    padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 100;
 }
 
-/* ── 6. BUTTONS ───────────────────────────────────────────── */
-.primary-btn {
-    background: linear-gradient(135deg, var(--accent-primary), #4f46e5);
-    color: #fff;
-    padding: 0.9rem 2rem;
-    border-radius: 1rem;
-    font-size: 1rem;
-    font-weight: 600;
-    box-shadow: 0 4px 15px var(--accent-primary-glow);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    cursor: pointer;
-    border: none;
-    transition: all var(--transition-fast);
+.brand {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(90deg, var(--cyan), var(--pink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-.primary-btn:hover:not(:disabled) {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 8px 25px var(--accent-primary-glow);
-    background: linear-gradient(135deg, #4f46e5, var(--accent-primary));
+.main-split-layout {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    flex: 1;
+    overflow: hidden;
 }
 
-.primary-btn:active:not(:disabled) {
-    transform: translateY(-1px);
-}
-
-.secondary-btn {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-main);
-    border: 1px solid var(--panel-border);
-    padding: 0.8rem 1.5rem;
-    border-radius: 1rem;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-}
-
-.secondary-btn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
-}
-
-/* ── 7. ONBOARDING ───────────────────────────────────────── */
-#onboarding-screen {
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-}
-
-.onboarding-card {
-    width: 100%;
-    max-width: 580px;
-    padding: 3.5rem 3rem;
-}
-
-.logo-large {
-    font-size: 4rem;
-    margin-bottom: 1.5rem;
-    display: block;
-}
-
-.onboarding-form {
+/* ── 3. LEFT PANEL: INPUT / CONTROL ──────────────────────── */
+.control-panel {
+    border-right: 1px solid var(--panel-border);
+    padding: 2.5rem;
+    background: rgba(15, 15, 25, 0.5);
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    text-align: left;
+    overflow-y: auto;
 }
 
-.input-group label,
-.input-group legend {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--text-muted);
+.onboarding-title h1 {
+    font-size: 2.5rem;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    color: var(--cyan);
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+}
+
+input, select {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    color: white;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--cyan);
+    box-shadow: 0 0 15px var(--cyan-glow);
+}
+
+.neon-btn {
+    background: linear-gradient(135deg, var(--cyan), var(--violet));
+    border: none;
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    color: var(--bg-deep);
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 0.75rem;
-    display: block;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 20px var(--cyan-glow);
 }
 
-.topic-field-container {
+.neon-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 30px var(--cyan-glow);
+    filter: brightness(1.1);
+}
+
+/* ── 4. RIGHT PANEL: AI OUTPUT ──────────────────────────── */
+.display-panel {
+    padding: 3rem;
+    background: radial-gradient(circle at top right, rgba(138, 43, 226, 0.05), transparent 60%);
+    overflow-y: auto;
     position: relative;
 }
 
-.topic-field-container i {
-    position: absolute;
-    left: 1.25rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--accent-primary);
-}
-
-input[type="text"],
-select {
-    width: 100%;
-    background: rgba(0, 0, 0, 0.3);
-    border: 2px solid var(--panel-border);
-    border-radius: 1rem;
-    padding: 1.1rem 1.25rem;
-    padding-left: 3.25rem;
-    color: #fff;
-    font-size: 1.1rem;
-    font-family: inherit;
-    transition: all var(--transition-fast);
-}
-
-input[type="text"]:focus,
-select:focus {
-    border-color: var(--accent-primary);
-    background: rgba(0, 0, 0, 0.5);
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
-}
-
-/* Custom Select Styling */
-select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1.25rem center;
-    background-size: 1.25rem;
-}
-
-/* ── 8. DASHBOARD LAYOUT ─────────────────────────────────── */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 340px 1fr;
-    gap: 2.5rem;
+.glass-card {
+    background: var(--bg-card);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-lg);
     padding: 2.5rem;
-    max-width: 1500px;
-    margin: 0 auto;
-    width: 100%;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-main);
+    transition: transform 0.3s ease;
 }
 
-/* ── 9. SIDEBAR & STATS ──────────────────────────────────── */
-.sidebar {
+.glass-card:hover {
+    border-color: rgba(0, 245, 255, 0.2);
+}
+
+.card-header {
     display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    height: calc(100vh - 140px);
-    position: sticky;
-    top: 100px;
-}
-
-.stats-card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-    border-radius: 1.25rem;
-    padding: 1.5rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.stat-item {
-    display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.25rem;
+    margin-bottom: 1.5rem;
 }
 
-.stat-value {
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    font-weight: 800;
+.confidence-tag {
+    background: rgba(0, 245, 255, 0.1);
+    color: var(--cyan);
+    padding: 0.4rem 0.8rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 1px solid var(--cyan);
 }
 
-.stat-label {
-    font-size: 0.65rem;
+.typing-container {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+}
+
+.explanation-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--panel-border);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+/* ── 5. AI THINKING ANIMATION ──────────────────────────── */
+.ai-status {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--cyan);
     text-transform: uppercase;
-    color: var(--text-muted);
     letter-spacing: 0.1em;
 }
 
-.stat-icon-streak {
-    color: var(--accent-gold);
+.pulse-dot {
+    width: 8px; height: 8px;
+    background: var(--cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--cyan);
+    animation: pulse 1.5s infinite;
 }
 
-.stat-icon-xp {
-    color: var(--accent-tertiary);
+@keyframes pulse {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.8); opacity: 0.5; }
 }
 
-/* Sidebar List */
-.path-container {
-    flex: 1;
-    overflow-y: auto;
-    padding-right: 0.5rem;
+/* ── 6. COMPONENT UTILITIES ────────────────────────────── */
+.badge {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--cyan);
+    border: 1px solid rgba(0, 245, 255, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.path-container::-webkit-scrollbar {
-    width: 4px;
+.quiz-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
 }
 
-.path-container::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
+.quiz-option-btn {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--panel-border);
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+}
+
+.quiz-option-btn:hover {
+    background: rgba(0, 245, 255, 0.05);
+    border-color: var(--cyan);
+    transform: translateX(5px);
+}
+
+.path-list {
+    list-style: none;
+    margin-top: 1rem;
 }
 
 .path-item {
     padding: 1rem;
-    border-radius: 1rem;
-    margin-bottom: 0.75rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 0.5rem;
     border: 1px solid transparent;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
 }
 
 .path-item.active {
-    background: rgba(99, 102, 241, 0.1);
-    border-color: rgba(99, 102, 241, 0.2);
-}
-
-.module-time {
-    font-size: 0.7rem;
-    color: var(--accent-tertiary);
+    background: rgba(0, 245, 255, 0.05);
+    border-color: rgba(0, 245, 255, 0.2);
+    color: var(--cyan);
     font-weight: 600;
-    margin-top: 0.25rem;
 }
 
-/* ── 10. MAIN CONTENT ────────────────────────────────────── */
-.lesson-panel {
-    padding: 3.5rem;
-    position: relative;
-    overflow: hidden;
-}
+.w-full { width: 100%; }
+.hidden { display: none !important; }
 
-.lesson-panel::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle at 100% 0%, var(--accent-primary-glow), transparent 70%);
-    pointer-events: none;
-}
-
-.lesson-header h2 {
-    font-size: 2.5rem;
-    margin-top: 0.75rem;
-    background: linear-gradient(to right, #fff, var(--text-muted));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-/* ── 11. QUIZ OPTIONS ────────────────────────────────────── */
-.quiz-option {
-    border-radius: 1.25rem;
-    padding: 1.25rem 1.75rem;
-    border-width: 2px;
-    background: rgba(0, 0, 0, 0.2);
-    font-size: 1.05rem;
-}
-
-.quiz-option:hover {
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateX(5px);
-}
-
-.option-indicator {
-    background: rgba(255, 255, 255, 0.1);
-    width: 34px;
-    height: 34px;
-    font-weight: 800;
-}
-
-/* ── 12. CERTIFICATE MODAL ───────────────────────────────── */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(10px);
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity var(--transition-normal);
-}
-
-.modal-overlay.active {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.certificate-card {
-    width: 90%;
-    max-width: 800px;
-    aspect-ratio: 1.414 / 1;
-    background: #0f111a;
-    border: 15px solid #1a1d2e;
-    padding: 4rem;
-    position: relative;
-    text-align: center;
-    color: #fff;
-    transform: scale(0.9);
-    transition: transform var(--transition-slow);
-}
-
-.modal-overlay.active .certificate-card {
-    transform: scale(1);
-}
-
-.cert-border {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    border: 2px solid var(--accent-gold);
-    pointer-events: none;
-}
-
-.cert-header {
-    font-family: var(--font-display);
-    font-size: 0.9rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--accent-gold);
-    margin-bottom: 2rem;
-}
-
-.cert-title {
-    font-size: 3.5rem;
-    margin-bottom: 1rem;
-}
-
-.cert-name {
-    font-family: var(--font-display);
-    font-size: 2.5rem;
-    font-weight: 800;
-    text-decoration: underline;
-    text-decoration-color: var(--accent-primary);
-    margin: 1.5rem 0;
-}
-
-.cert-footer {
-    margin-top: 3rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-}
-
-.cert-seal {
-    width: 100px;
-    height: 100px;
-    background: var(--accent-gold);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
-    color: #000;
-    box-shadow: 0 0 30px var(--accent-gold-glow);
-}
-
-.cert-close {
-    position: absolute;
-    top: -50px;
-    right: 0;
-    background: transparent;
-    color: #fff;
-    font-size: 1.5rem;
-}
-
-/* ── 13. ANIMATIONS ──────────────────────────────────────── */
-@keyframes shine {
-    from {
-        background-position: 0% center;
-    }
-
-    to {
-        background-position: 200% center;
-    }
-}
-
-@keyframes float {
-    0% {
-        transform: translate(0, 0) scale(1);
-    }
-
-    100% {
-        transform: translate(40px, 60px) scale(1.1);
-    }
-}
-
-/* Staggered Entrance */
-.stagger-1 {
-    animation-delay: 0.1s;
-}
-
-.stagger-2 {
-    animation-delay: 0.2s;
-}
-
-.stagger-3 {
-    animation-delay: 0.3s;
-}
-
-.stagger-4 {
-    animation-delay: 0.4s;
-}
-
-/* ── 14. AGENT MEMORY BOX ────────────────────────────────── */
-.agent-memory-box {
-    background: rgba(99, 102, 241, 0.1);
-    border-left: 4px solid var(--accent-primary);
-    padding: 1.25rem;
-    border-radius: 0.5rem;
-    margin-top: 2rem;
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-}
-
-.agent-memory-box i {
-    color: var(--accent-gold);
-    margin-top: 0.2rem;
-}
-
-/* ── 15. RESPONSIVE ───────────────────────────────────────── */
-@media (max-width: 1100px) {
-    .dashboard-grid {
-        grid-template-columns: 280px 1fr;
-    }
-}
-
-@media (max-width: 900px) {
-    .dashboard-grid {
+/* ── 7. RESPONSIVE ──────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .main-split-layout {
         grid-template-columns: 1fr;
-        padding: 1.5rem;
     }
-
-    .sidebar {
+    .control-panel {
+        border-right: none;
+        border-bottom: 1px solid var(--panel-border);
         height: auto;
-        position: static;
     }
 }
