@@ -4,29 +4,29 @@
  */
 
 :root {
-    /* Futuristic Color Palette */
-    --bg-deep:          #0a0a0f;
-    --bg-card:          rgba(16, 16, 24, 0.7);
-    --panel-border:     rgba(255, 255, 255, 0.08);
+    /* Monolith Emerald & Gold Theme (Unique Hackathon Entry) */
+    --bg-deep:          #050805; /* Obsidian Green */
+    --bg-card:          rgba(8, 12, 8, 0.8);
+    --panel-border:     rgba(16, 185, 129, 0.1);
     
-    /* Accents */
-    --cyan:             #00f5ff;
-    --pink:             #ff00c8;
-    --violet:           #8a2be2;
-    --cyan-glow:        rgba(0, 245, 255, 0.3);
-    --pink-glow:        rgba(255, 0, 200, 0.3);
+    /* Luxury Tech Accents */
+    --cyan:             #10b981; /* Emerald Green */
+    --pink:             #fbbf24; /* Amber Gold */
+    --violet:           #059669; /* Deep Mint */
+    --cyan-glow:        rgba(16, 185, 129, 0.25);
+    --pink-glow:        rgba(251, 191, 36, 0.25);
     
     /* Text */
-    --text-primary:     #f0f0f5;
-    --text-secondary:   #a0a0b0;
+    --text-primary:     #ecfdf5; /* Off-white Mint */
+    --text-secondary:   #6ee7b7; /* Muted Mint */
     
     /* Shadows & Glows */
-    --shadow-main:      0 8px 32px 0 rgba(0, 0, 0, 0.8);
-    --glass-blur:       blur(16px);
+    --shadow-main:      0 8px 32px 0 rgba(0, 0, 0, 0.9);
+    --glass-blur:       blur(20px);
     
     /* Spacing */
-    --radius-lg:        1.25rem;
-    --radius-md:        0.75rem;
+    --radius-lg:        1.5rem;
+    --radius-md:        0.5rem; /* Industrial sharp edges */
 }
 
 /* ── 1. BASE & RESET ─────────────────────────────────────── */
@@ -69,8 +69,8 @@ body {
     font-weight: 800;
     letter-spacing: -0.02em;
     background: linear-gradient(90deg, var(--cyan), var(--pink));
-    -webkit-background-clip: text;
     background-clip: text;
+    -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -153,7 +153,7 @@ input:focus, select:focus {
 /* ── 4. RIGHT PANEL: AI OUTPUT ──────────────────────────── */
 .display-panel {
     padding: 3rem;
-    background: radial-gradient(circle at top right, rgba(138, 43, 226, 0.05), transparent 60%);
+    background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.08), transparent 60%);
     overflow-y: auto;
     position: relative;
 }
@@ -202,6 +202,23 @@ input:focus, select:focus {
     border-top: 1px solid var(--panel-border);
     color: var(--text-secondary);
     font-size: 0.95rem;
+}
+
+.terminal-log {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    color: var(--pink); /* Amber Gold for reasoning */
+    border: 1px solid rgba(251, 191, 36, 0.1);
+    min-height: 120px;
+    margin-top: 1rem;
+}
+
+.terminal-line {
+    margin-bottom: 0.5rem;
+    opacity: 0.9;
 }
 
 /* ── 5. AI THINKING ANIMATION ──────────────────────────── */
