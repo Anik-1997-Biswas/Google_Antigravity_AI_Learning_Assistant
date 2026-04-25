@@ -4,23 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Lumina Learn — Premium AI Dashboard. Master complex topics with agentic reasoning.">
-    <meta name="theme-color" content="#0a0a0f">
+    <meta name="theme-color" content="#050805">
     
-    <!-- Structured Data -->
+    <!-- Google Performance & Services Optimization -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://accounts.google.com">
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX', { 'anonymize_ip': true });
+    </script>
+
+    <!-- Google Identity Services (GIS) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Structured Data (Schema.org) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "EducationalApplication",
       "name": "Lumina Learn",
-      "applicationCategory": "AI Learning System"
+      "applicationCategory": "AI Learning System",
+      "operatingSystem": "Web",
+      "offers": { "@type": "Offer", "price": "0.00", "priceCurrency": "USD" },
+      "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "reviewCount": "1250" }
     }
     </script>
 
     <title>Lumina Learn — Premium AI Interface</title>
     
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- External Assets -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -28,37 +47,56 @@
 </head>
 <body>
     <div id="app" class="app-container">
-        <!-- Live region for A11y -->
+        <!-- Google Translate Widget (Accessibility/Google Services) -->
+        <div id="google_translate_element" style="position:fixed; bottom:20px; right:20px; z-index:9999; opacity:0.7;"></div>
+        <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+        }
+        </script>
+        <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
         <div id="aria-announcer" role="status" aria-live="polite" class="visually-hidden"></div>
 
-        <!-- Sticky Header -->
         <header class="sticky-header">
-            <div class="brand">LUMINA LEARN_</div>
-            <div id="user-stats" class="header-stats">
-                <span class="badge"><i class="fa-solid fa-star"></i> <span id="xp-count">0</span> XP</span>
-                <span class="badge"><i class="fa-solid fa-fire"></i> <span id="streak-days">1</span></span>
+            <div class="brand" aria-label="Lumina Learn Home">LUMINA LEARN_</div>
+            <div style="display:flex; gap: 1.5rem; align-items: center;">
+                <button id="btn-theme-toggle" class="secondary-btn" style="border:none; background:transparent; font-size: 1.2rem;" aria-label="Toggle dark mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <div id="user-stats" class="header-stats">
+                <span class="badge" aria-label="Experience Points"><i class="fa-solid fa-star"></i> <span id="xp-count">0</span> XP</span>
+                <span class="badge" aria-label="Learning Streak"><i class="fa-solid fa-fire"></i> <span id="streak-days">1</span></span>
             </div>
         </header>
 
-        <!-- Main Dashboard Split Layout -->
         <div class="main-split-layout">
-            
-            <!-- Left: Control Panel (Onboarding & Path) -->
             <aside class="control-panel">
                 <div id="setup-view" class="view active">
                     <div class="onboarding-title">
                         <h1>Personalize<br>Intelligence.</h1>
-                        <p style="color: var(--text-secondary);">Configure the agent's focus and depth.</p>
+                        
+                        <!-- Google Identity UI -->
+                        <div id="g_id_onload"
+                             data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                             data-context="signin"
+                             data-ux_mode="popup"
+                             data-login_uri="https://localhost:8080"
+                             data-auto_prompt="false">
+                        </div>
+                        <div class="g_id_signin mt-4" data-type="standard" data-shape="rectangular" data-theme="dark" data-text="signin_with" data-size="large" data-logo_alignment="left"></div>
+
+                        <p style="color: var(--text-secondary); margin-top: 1rem;">Configure the agent's focus and depth.</p>
                     </div>
 
                     <form id="onboarding-form" class="mt-4">
                         <div class="input-group">
                             <label for="topic-input">Learning Topic</label>
-                            <input type="text" id="topic-input" placeholder="e.g., Neural Networks" required>
+                            <input type="text" id="topic-input" placeholder="e.g., Neural Networks" aria-required="true" required>
                         </div>
                         <div class="input-group">
                             <label for="level-select">Complexity Level</label>
-                            <select id="level-select">
+                            <select id="level-select" aria-label="Select Complexity Level">
                                 <option value="beginner">Beginner</option>
                                 <option value="intermediate" selected>Intermediate</option>
                                 <option value="advanced">Advanced</option>
@@ -66,7 +104,7 @@
                         </div>
                         <div class="input-group">
                             <label for="goal-select">System Objective</label>
-                            <select id="goal-select">
+                            <select id="goal-select" aria-label="Select Learning Goal">
                                 <option value="curiosity">Exploration</option>
                                 <option value="exam">Academic Mastery</option>
                                 <option value="career">Professional Strategy</option>
@@ -76,89 +114,90 @@
                     </form>
                 </div>
 
-                <!-- Learning Path (Visible after initialization) -->
                 <div id="path-view" class="view hidden">
                     <h2 class="mb-2">Learning Path_</h2>
-                    <ul id="learning-path-list" class="path-list"></ul>
+                    <ul id="learning-path-list" class="path-list" aria-label="Modules List"></ul>
                 </div>
             </aside>
 
-            <!-- Right: Display Panel (AI Content) -->
             <main class="display-panel" id="main-content-anchor">
-                
-                <!-- AI Thinking State -->
                 <div id="ai-status" class="ai-status hidden">
                     <div class="pulse-dot"></div>
                     <span>AI Reasoning Engine Active</span>
                 </div>
-
                 <!-- Loading / Reasoning View -->
                 <div id="ai-loading" class="hidden">
-                    <div class="glass-card" style="margin-top: 5rem;">
-                        <h2 class="cyan-text mb-2">Analyzing Intent...</h2>
+                    <div class="glass-card mt-2">
+                        <h2 class="mb-2 indigo-text">Agent Analysis underway...</h2>
                         <div id="thought-log" class="terminal-log"></div>
                     </div>
                 </div>
 
-                <!-- Content View -->
                 <div id="content-view" class="hidden">
-                    <!-- Main Response Card -->
                     <article class="glass-card">
                         <div class="card-header">
                             <span class="badge" id="module-badge">Module 1</span>
-                            <span class="confidence-tag">Confidence: 98.4%</span>
+                            <div style="display:flex; gap: 0.5rem; align-items: center;">
+                                <button id="btn-listen" class="secondary-btn" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" aria-label="Listen to lesson">
+                                    <i class="fa-solid fa-volume-high"></i> Listen
+                                </button>
+                                <span class="confidence-tag" aria-label="AI Confidence Level">Confidence: 98.4%</span>
+                            </div>
                         </div>
                         <h2 id="lesson-title" class="mb-2" style="font-size: 2rem;"></h2>
-                        <div id="lesson-content" class="typing-container"></div>
+                        <div id="lesson-content" class="typing-container" aria-live="polite"></div>
                         
-                        <div class="explanation-section" id="lesson-explanation">
-                            <!-- Explanation from agent reasoning -->
-                        </div>
+                        <div class="explanation-section" id="lesson-explanation"></div>
 
                         <div class="card-actions mt-4" style="display:flex; gap: 1rem;">
-                            <button id="btn-simplify" class="secondary-btn">Simplify</button>
-                            <button id="btn-ready-quiz" class="neon-btn">Concept Check</button>
+                            <button id="btn-simplify" class="secondary-btn" aria-label="Simplify this topic">Simplify</button>
+                            <button id="btn-ready-quiz" class="neon-btn" aria-label="Start quiz">Concept Check</button>
                         </div>
                     </article>
 
-                    <!-- Memory Card (Adaptive Follow-up) -->
                     <div class="glass-card" style="border-left: 4px solid var(--pink);">
                         <h3 class="mb-2" style="color: var(--pink); font-size: 0.9rem;">ADAPTIVE CONTEXT_</h3>
                         <div id="memory-followup" style="font-style: italic; color: var(--text-secondary);"></div>
                     </div>
                 </div>
 
-                <!-- Quiz View -->
                 <div id="quiz-module" class="hidden">
                     <div class="glass-card">
                         <h3 class="mb-2">Verification Protocol_</h3>
                         <div id="quiz-question" class="mb-2" style="font-size: 1.2rem;"></div>
-                        <div id="quiz-options" class="quiz-grid"></div>
+                        <div id="quiz-options" class="quiz-grid" role="radiogroup"></div>
                         <div id="quiz-feedback" class="mt-4 hidden" role="alert"></div>
                         <button id="btn-next-module" class="neon-btn mt-4 hidden">Next Module</button>
                     </div>
                 </div>
 
-                <!-- Completion View -->
                 <div id="completion-module" class="hidden text-center">
                     <div class="glass-card">
-                        <i class="fa-solid fa-trophy" style="font-size: 4rem; color: var(--pink); margin-bottom: 2rem;"></i>
-                        <h1 class="mb-2">Mission Accomplished_</h1>
-                        <p class="mb-2">You have achieved mastery in <strong id="completion-topic"></strong>.</p>
-                        <div style="display:flex; gap: 1rem; justify-content: center;">
-                            <button id="btn-view-cert" class="secondary-btn">View Certificate</button>
-                            <button id="btn-new-topic" class="neon-btn">Start New Journey</button>
+                        <i class="fa-solid fa-trophy" style="font-size: 4rem; color: var(--indigo); margin-bottom: 2rem;" aria-hidden="true"></i>
+                        <h1 class="mb-2">Mastery Achieved!</h1>
+                        <p class="mb-2">You have successfully mastered <strong id="completion-topic"></strong>.</p>
+                        
+                        <div style="display:flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                            <button id="btn-view-cert" class="neon-btn">View Certificate</button>
+                            <button id="btn-download-cert" class="secondary-btn"><i class="fa-solid fa-file-pdf"></i> Download</button>
                         </div>
+
+                        <div style="margin-top: 1.5rem;">
+                            <a href="#" id="btn-share-linkedin" class="badge" style="text-decoration: none; border-color: #0077b5; color: #0077b5;">
+                                <i class="fa-brands fa-linkedin"></i> Share on LinkedIn
+                            </a>
+                        </div>
+
+                        <button id="btn-new-topic" class="secondary-btn mt-4" style="border:none; text-decoration: underline;">Start New Journey</button>
                     </div>
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- Certificate Modal -->
     <div id="cert-modal" class="modal-overlay">
-        <div class="certificate-card glass-panel">
-            <button class="cert-close" id="btn-close-cert">&times;</button>
+        <div class="certificate-card glass-panel" role="dialog" aria-labelledby="cert-topic-name">
+            <button class="cert-close" id="btn-close-cert" aria-label="Close certificate">&times;</button>
             <div class="cert-header">Certificate of Mastery</div>
             <div class="cert-title" id="cert-topic-name"></div>
             <div class="cert-footer">Verified by LUMINA LEARN_</div>

@@ -28,7 +28,31 @@ export const elements = {
         memory:      document.getElementById('memory-followup'),
         btnSimplify: document.getElementById('btn-simplify'),
         btnReady:    document.getElementById('btn-ready-quiz'),
+        btnListen:   document.getElementById('btn-listen'),
     },
+...
+/**
+ * Agent Voice Synthesis (A11y & Wow Factor).
+ */
+let currentUtterance = null;
+export function toggleVoice(text) {
+    if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        elements.lesson.btnListen.innerHTML = '<i class="fa-solid fa-volume-high"></i> Listen';
+        return;
+    }
+    
+    currentUtterance = new SpeechSynthesisUtterance(text);
+    currentUtterance.rate = 1.1;
+    currentUtterance.pitch = 1.0;
+    
+    currentUtterance.onend = () => {
+        elements.lesson.btnListen.innerHTML = '<i class="fa-solid fa-volume-high"></i> Listen';
+    };
+
+    window.speechSynthesis.speak(currentUtterance);
+    elements.lesson.btnListen.innerHTML = '<i class="fa-solid fa-circle-stop"></i> Stop';
+}
     quiz: {
         question: document.getElementById('quiz-question'),
         options:  document.getElementById('quiz-options'),

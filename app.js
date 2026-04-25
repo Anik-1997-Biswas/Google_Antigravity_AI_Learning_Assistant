@@ -10,6 +10,12 @@ import { Agent } from './js/agent.js';
 /* ── 1. INITIALIZATION ────────────────────────────────────── */
 
 function init() {
+    // Force unregister stale service workers for clean demo
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+            for(let reg of regs) reg.unregister();
+        });
+    }
     setupListeners();
     announce('AI Interface initialized.');
 }
@@ -146,13 +152,32 @@ function showQuiz() {
 
 function setupListeners() {
     document.getElementById('onboarding-form').addEventListener('submit', handleStart);
+    
+    // Theme Toggle
+    document.getElementById('btn-theme-toggle').addEventListener('click', () => {
+        document.body.classList.toggle('dark-theme');
+        const icon = document.querySelector('#btn-theme-toggle i');
+        icon.classList.toggle('fa-moon');
+        icon.classList.toggle('fa-sun');
+    });
     elements.lesson.btnReady.addEventListener('click', showQuiz);
+    elements.lesson.btnListen.addEventListener('click', () => {
+        const text = elements.lesson.title.textContent + '. ' + elements.lesson.content.textContent;
+        import('./js/ui.js').then(ui => ui.toggleVoice(text));
+    });
     elements.quiz.btnNext.addEventListener('click', () => {
         if (state.currentModuleIndex < state.modules.length - 1) {
             loadModule(state.currentModuleIndex + 1);
         } else {
             showCompletion();
         }
+    });
+    elements.completion.btnViewCert.addEventListener('click', showCertificate);
+    document.getElementById('btn-download-cert').addEventListener('click', () => window.print());
+    document.getElementById('btn-share-linkedin').addEventListener('click', (e) => {
+        e.preventDefault();
+        const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&summary=I%20just%20mastered%20${state.topic}%20on%20Lumina%20Learn!`;
+        window.open(url, '_blank');
     });
     elements.completion.btnNew.addEventListener('click', () => location.reload());
 }
