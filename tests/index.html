@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumina Learn — Test Suite</title>
+<style>
+body{font-family:'Segoe UI',sans-serif;background:#0f111a;color:#f0f2f8;padding:2rem;}
+h1{color:#6366f1;margin-bottom:.5rem;}
+.meta{color:#b3b9cc;font-size:.9rem;margin-bottom:2rem;}
+table{width:100%;border-collapse:collapse;margin-bottom:2rem;}
+th{background:#1a1d2e;padding:.75rem 1rem;text-align:left;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:#b3b9cc;}
+td{padding:.75rem 1rem;border-bottom:1px solid rgba(255,255,255,.06);font-size:.9rem;}
+.pass{color:#10b981;font-weight:700;} .fail{color:#ef4444;font-weight:700;}
+.summary{background:#1a1d2e;border-radius:1rem;padding:1.5rem 2rem;display:flex;gap:3rem;margin-bottom:2rem;}
+.summary-stat h3{font-size:2rem;margin-bottom:.25rem;} .summary-stat p{color:#b3b9cc;font-size:.85rem;}
+.err{font-size:.8rem;color:#f87171;font-family:monospace;}
+#run-btn{background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border:none;padding:.75rem 1.5rem;border-radius:.75rem;cursor:pointer;font-size:1rem;margin-bottom:2rem;}
+</style>
+</head>
+<body>
+<h1>&#x1F9EA; Lumina Learn &mdash; Test Suite</h1>
+<p class="meta">Zero-dependency in-browser unit tests</p>
+<button id="run-btn" onclick="runTests()">&#9654; Run All Tests</button>
+<div class="summary" id="summary" style="display:none">
+  <div class="summary-stat"><h3 id="s-total">0</h3><p>Total</p></div>
+  <div class="summary-stat"><h3 id="s-pass" style="color:#10b981">0</h3><p>Passed</p></div>
+  <div class="summary-stat"><h3 id="s-fail" style="color:#ef4444">0</h3><p>Failed</p></div>
+</div>
+<table id="results-table">
+  <thead><tr><th>#</th><th>Suite</th><th>Test</th><th>Result</th><th>Details</th></tr></thead>
+  <tbody id="results-body"></tbody>
+</table>
+<script>
+'use strict';
+// ── Minimal Test Framework ────────────────────────────────────
+const results=[];let suite='';
+function describe(s,fn){suite=s;fn();}
+function it(name,fn){
+  try{fn();results.push({suite,name,pass:true,error:null});}
+  catch(e){results.push({suite,name,pass:false,error:e.message});}
+}
+function expect(actual){
+  return{
+    toBe(e){if(actual!==e)throw new Error('Expected '+JSON.stringify(e)+' got '+JSON.stringify(actual));},
+    toBeTruthy(){if(!actual)throw new Error('Expected truthy got '+JSON.stringify(actual));},
+    toBeFalsy(){if(actual)throw new Error('Expected falsy got '+JSON.stringify(actual));},
+    toContain(s){if(!String(actual).includes(s))throw new Error('"'+actual+'" should contain "'+s+'"');},
+    toHaveLength(n){if(actual.length!==n)throw new Error('Expected length '+n+' got '+actual.length);},
+    toBeGreaterThan(n){if(actual<=n)throw new Error(actual+' not > '+n);},
+    not:{
+      toContain(s){if(String(actual).includes(s))throw new Error('"'+actual+'" should NOT contain "'+s+'"');},
+      toBe(e){if(actual===e)throw new Error('Expected not '+JSON.stringify(e));}
+    }
+  };
+}
+
+// ── Pure function clones (no DOM deps) ────────────────────────
+function escapeHTML(str){
+  const m={'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'};
+  return String(str).replace(/[&<>'"]/g,t=>m[t]||t);
+}
+function validateTopic(v){
+  const t=v.trim();
+  if(!t)return{valid:false,message:'Please enter a topic.'};
+  if(t.length>100)return{valid:false,message:'Too long.'};
+  return{valid:true,message:''};
+}
+function calcProgress(done,total){
+  if(total===0)return 0;
+  return Math.round((done/total)*100);
+}
+function buildModules(topic){
+  const t=escapeHTML(topic);
+  return[
+    {title:'Introduction to '+topic,
+     content:'<p>Intro to <strong>'+t+'</strong></p>',
+     simplifiedContent:'<p>Simple intro to '+t+'</p>',
+     quiz:{question:'Goal of intro?',
+       options:[{text:'Advanced',isCorrect:false},{text:'Foundation',isCorrect:true},{text:'Skip',isCorrect:false}],
+       explanation:'Foundation is key.'}},
+    {title:'Core Mechanics of '+topic,
+     content:'<p>Mechanics of <strong>'+t+'</strong></p>',
+     simplifiedContent:'<p>Simple mechanics</p>',
+     quiz:{question:'Why mechanics matter?',
+       options:[{text:'They are the base',isCorrect:true},{text:'Only for memorising',isCorrect:false},{text:'Not important',isCorrect:false}],
+       explanation:'Mechanics are fundamental rules.'}},
+    {title:'Practical Applications',
+     content:'<p>Apply <strong>'+t+'</strong></p>',
+     simplifiedContent:'<p>Apply in real world</p>',
+     quiz:{question:'What is bridging theory and practice?',
+       options:[{text:'Read books',isCorrect:false},{text:'Apply to real situations',isCorrect:true},{text:'Ignore theory',isCorrect:false}],
+       explanation:'Application is using knowledge practically.'}}
+  ];
+}
+
+// ── Test Suites ────────────────────────────────────────────────
+function runTests(){
+  results.length=0;
+
+  describe('escapeHTML()',()=>{
+    it('returns empty string unchanged',()=>expect(escapeHTML('')).toBe(''));
+    it('escapes ampersand',()=>expect(escapeHTML('a & b')).toContain('&amp;'));
+    it('escapes less-than',()=>expect(escapeHTML('<div>')).toContain('&lt;'));
+    it('escapes greater-than',()=>expect(escapeHTML('<div>')).toContain('&gt;'));
+    it('escapes double quotes',()=>expect(escapeHTML('"hi"')).toContain('&quot;'));
+    it('escapes single quotes',()=>expect(escapeHTML("it's")).toContain('&#39;'));
+    it('XSS: img onerror blocked',()=>{
+      expect(escapeHTML('<img onerror=alert(1)>')).not.toContain('<img');
+    });
+    it('XSS: script tag blocked',()=>{
+      expect(escapeHTML('<script>alert(1)<\/script>')).not.toContain('<script>');
+    });
+    it('safe plain text unchanged',()=>expect(escapeHTML('Hello')).toBe('Hello'));
+    it('coerces number input',()=>expect(escapeHTML(42)).toBe('42'));
+  });
+
+  describe('validateTopic()',()=>{
+    it('rejects empty string',()=>expect(validateTopic('').valid).toBeFalsy());
+    it('rejects whitespace only',()=>expect(validateTopic('   ').valid).toBeFalsy());
+    it('accepts normal topic',()=>expect(validateTopic('Python').valid).toBeTruthy());
+    it('accepts topic at max 100 chars',()=>expect(validateTopic('A'.repeat(100)).valid).toBeTruthy());
+    it('rejects topic over 100 chars',()=>expect(validateTopic('A'.repeat(101)).valid).toBeFalsy());
+    it('returns error message on failure',()=>expect(validateTopic('').message.length).toBeGreaterThan(0));
+    it('returns empty message on success',()=>expect(validateTopic('Python').message).toBe(''));
+  });
+
+  describe('buildModules()',()=>{
+    const mods=buildModules('Python');
+    it('produces 3 modules',()=>expect(mods).toHaveLength(3));
+    it('module 1 title contains topic',()=>expect(mods[0].title).toContain('Python'));
+    it('all modules have titles',()=>mods.forEach(m=>expect(m.title.length).toBeGreaterThan(0)));
+    it('all modules have content',()=>mods.forEach(m=>expect(m.content.length).toBeGreaterThan(0)));
+    it('all modules have simplifiedContent',()=>mods.forEach(m=>expect(m.simplifiedContent.length).toBeGreaterThan(0)));
+    it('all quizzes have a question',()=>mods.forEach(m=>expect(m.quiz.question.length).toBeGreaterThan(0)));
+    it('all quizzes have 3 options',()=>mods.forEach(m=>expect(m.quiz.options).toHaveLength(3)));
+    it('each quiz has exactly 1 correct option',()=>{
+      mods.forEach(m=>{
+        const c=m.quiz.options.filter(o=>o.isCorrect);
+        expect(c).toHaveLength(1);
+      });
+    });
+    it('all quizzes have explanation',()=>mods.forEach(m=>expect(m.quiz.explanation.length).toBeGreaterThan(0)));
+    it('XSS in topic is escaped in content',()=>{
+      const xss=buildModules('<script>alert(1)<\/script>');
+      expect(xss[0].content).not.toContain('<script>');
+    });
+  });
+
+  describe('calcProgress()',()=>{
+    it('0 of 3 = 0%',()=>expect(calcProgress(0,3)).toBe(0));
+    it('1 of 3 = 33%',()=>expect(calcProgress(1,3)).toBe(33));
+    it('2 of 3 = 67%',()=>expect(calcProgress(2,3)).toBe(67));
+    it('3 of 3 = 100%',()=>expect(calcProgress(3,3)).toBe(100));
+    it('0 total returns 0 (no divide-by-zero)',()=>expect(calcProgress(0,0)).toBe(0));
+  });
+
+  renderResults();
+}
+
+function renderResults(){
+  const tbody=document.getElementById('results-body');
+  const passed=results.filter(r=>r.pass).length;
+  const failed=results.filter(r=>!r.pass).length;
+  tbody.innerHTML='';
+  results.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    const detail=r.error?'<span class="err">'+escapeHTML(r.error)+'</span>':'—';
+    tr.innerHTML='<td>'+(i+1)+'</td><td>'+r.suite+'</td><td>'+r.name+'</td><td class="'+(r.pass?'pass':'fail')+'">'+(r.pass?'&#10003; PASS':'&#10007; FAIL')+'</td><td>'+detail+'</td>';
+    tbody.appendChild(tr);
+  });
+  document.getElementById('s-total').textContent=results.length;
+  document.getElementById('s-pass').textContent=passed;
+  document.getElementById('s-fail').textContent=failed;
+  document.getElementById('summary').style.display='flex';
+}
+</script>
+</body>
+</html>

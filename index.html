@@ -3,150 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumina - AI Learning Companion</title>
+    <meta name="description" content="Lumina Learn — Premium, adaptive AI learning companion. Master any topic at your own pace with personalized lessons.">
+    <meta name="theme-color" content="#08090d">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' https://www.google-analytics.com data:; connect-src 'self' https://www.google-analytics.com; frame-ancestors 'none';">
+    
+    <title>Lumina Learn — Premium AI Education</title>
+    
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+    
     <!-- Styles -->
     <link rel="stylesheet" href="styles.css">
+
+    <!-- GA4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX', { anonymize_ip: true });
+    </script>
 </head>
 <body>
-    <div id="app" class="app-container">
-        <!-- Background Elements -->
-        <div class="bg-orb orb-1"></div>
-        <div class="bg-orb orb-2"></div>
-        <div class="bg-orb orb-3"></div>
+    <!-- Background Effects -->
+    <div class="bg-grid" aria-hidden="true"></div>
+    <div class="bg-orb orb-1" aria-hidden="true"></div>
+    <div class="bg-orb orb-2" aria-hidden="true"></div>
+    <div class="bg-orb orb-3" aria-hidden="true"></div>
 
-        <!-- Onboarding Screen -->
-        <main id="onboarding-screen" class="screen active fade-in">
+    <div id="app" class="app-container">
+        <!-- Live region for accessibility -->
+        <div id="aria-announcer" role="status" aria-live="polite" aria-atomic="true" class="visually-hidden"></div>
+
+        <!-- ═══════════════════════════════════════════════════
+             ONBOARDING SCREEN
+        ════════════════════════════════════════════════════ -->
+        <main id="onboarding-screen" class="screen active fade-in" aria-label="Setup your learning journey">
             <div class="glass-panel onboarding-card">
-                <div class="logo-container">
-                    <i class="fa-solid fa-brain glowing-icon"></i>
+                <div class="logo-container text-center">
+                    <i class="fa-solid fa-brain glowing-icon logo-large"></i>
                     <h1>Lumina <span class="gradient-text">Learn</span></h1>
+                    <p class="subtitle mt-4">Your intelligent, adaptive learning companion.</p>
                 </div>
-                <p class="subtitle">Your intelligent, adaptive learning companion.</p>
-                
-                <form id="onboarding-form" class="onboarding-form">
+
+                <form id="onboarding-form" class="onboarding-form mt-4" novalidate>
+                    <!-- Topic Input -->
                     <div class="input-group">
-                        <label for="topic-input">What topic do you want to learn?</label>
-                        <input type="text" id="topic-input" placeholder="e.g., Quantum Computing, Python, World War II" required autocomplete="off">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label>What is your current level?</label>
-                        <div class="level-selector">
-                            <input type="radio" id="level-beginner" name="level" value="beginner" checked>
-                            <label for="level-beginner" class="level-btn">
-                                <i class="fa-solid fa-seedling"></i> Beginner
-                            </label>
-                            
-                            <input type="radio" id="level-intermediate" name="level" value="intermediate">
-                            <label for="level-intermediate" class="level-btn">
-                                <i class="fa-solid fa-tree"></i> Intermediate
-                            </label>
-                            
-                            <input type="radio" id="level-advanced" name="level" value="advanced">
-                            <label for="level-advanced" class="level-btn">
-                                <i class="fa-solid fa-mountain"></i> Advanced
-                            </label>
+                        <label for="topic-input">What do you want to master?</label>
+                        <div class="topic-field-container">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="topic-input" name="topic" 
+                                   placeholder="e.g., Astrophysics, Python, Architecture"
+                                   required autocomplete="off" maxlength="100" aria-required="true">
                         </div>
                     </div>
-                    
+
+                    <!-- Level & Goal Grid -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <!-- Level -->
+                        <div class="input-group">
+                            <label for="level-select">Current Level</label>
+                            <div class="topic-field-container">
+                                <i class="fa-solid fa-gauge-high"></i>
+                                <select id="level-select" name="level">
+                                    <option value="beginner">Beginner</option>
+                                    <option value="intermediate" selected>Intermediate</option>
+                                    <option value="advanced">Advanced</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Goal -->
+                        <div class="input-group">
+                            <label for="goal-select">Learning Goal</label>
+                            <div class="topic-field-container">
+                                <i class="fa-solid fa-bullseye"></i>
+                                <select id="goal-select" name="goal">
+                                    <option value="curiosity">Casual Curiosity</option>
+                                    <option value="exam">Exam Preparation</option>
+                                    <option value="career">Career Upskilling</option>
+                                    <option value="mastery">Complete Mastery</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="form-error" class="form-error hidden" role="alert"></div>
+
                     <button type="submit" class="primary-btn pulse-hover">
-                        Start Learning Journey <i class="fa-solid fa-arrow-right"></i>
+                        Generate Curriculum <i class="fa-solid fa-bolt"></i>
                     </button>
                 </form>
             </div>
         </main>
 
-        <!-- Dashboard Screen -->
-        <main id="dashboard-screen" class="screen hidden">
+        <!-- ═══════════════════════════════════════════════════
+             DASHBOARD SCREEN
+        ════════════════════════════════════════════════════ -->
+        <div id="dashboard-screen" class="screen hidden">
             <nav class="glass-navbar">
                 <div class="nav-logo">
-                    <i class="fa-solid fa-brain"></i>
+                    <i class="fa-solid fa-brain" aria-hidden="true"></i>
                     <span class="gradient-text">Lumina</span>
                 </div>
-                <div class="nav-topic" id="nav-topic-display">
-                    Learning: <strong>Topic</strong>
+                <div class="nav-topic" id="nav-topic-display">Learning: <strong>—</strong></div>
+                <div id="user-xp-badge" class="badge">
+                    <i class="fa-solid fa-star"></i> <span id="xp-count">0</span> XP
                 </div>
-                <div class="nav-level badge" id="nav-level-display">Level</div>
             </nav>
 
             <div class="dashboard-grid">
-                <!-- Sidebar: Learning Path -->
-                <aside class="glass-panel sidebar slide-in-left">
-                    <div class="sidebar-header">
-                        <h2><i class="fa-solid fa-map-location-dot"></i> Your Path</h2>
-                        <div class="progress-container">
-                            <div class="progress-bar-bg">
-                                <div class="progress-bar-fill" id="overall-progress" style="width: 0%"></div>
+                <!-- Sidebar -->
+                <aside class="sidebar slide-in-left">
+                    <!-- Stats Card -->
+                    <div class="stats-card">
+                        <div class="stat-item">
+                            <div class="stat-value stat-icon-streak">
+                                <i class="fa-solid fa-fire"></i> <span id="streak-days">1</span>
                             </div>
-                            <span class="progress-text" id="progress-text">0% Completed</span>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value stat-icon-xp">
+                                <i class="fa-solid fa-award"></i> <span id="total-points">0</span>
+                            </div>
+                            <div class="stat-label">Total Points</div>
                         </div>
                     </div>
-                    <ul class="learning-path-list" id="learning-path-list">
-                        <!-- Populated by JS -->
-                    </ul>
+
+                    <!-- Learning Path -->
+                    <div class="glass-panel path-container">
+                        <div class="sidebar-header" style="padding: 1.5rem 1.5rem 0.5rem 1.5rem;">
+                            <h2><i class="fa-solid fa-route"></i> Your Path</h2>
+                            <div class="progress-container mt-4" id="progress-region">
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" id="overall-progress" style="width: 0%"></div>
+                                </div>
+                                <div style="display:flex; justify-content: space-between;">
+                                    <span class="progress-text" id="progress-text">0% Done</span>
+                                    <span class="progress-text" id="goal-tag">Goal: Curiosity</span>
+                                </div>
+                            </div>
+                        </div>
+                        <ul class="learning-path-list" id="learning-path-list" style="padding: 1.5rem;">
+                            <!-- Populated by JS -->
+                        </ul>
+                    </div>
                 </aside>
 
-                <!-- Main Content Area -->
-                <section class="main-content slide-in-up">
-                    <!-- Loading State -->
+                <!-- Main Area -->
+                <main class="main-content slide-in-up">
+                    <!-- Loading -->
                     <div id="ai-loading" class="glass-panel loading-panel hidden">
                         <div class="spinner"></div>
-                        <p>Lumina is analyzing your level and designing your curriculum...</p>
+                        <p class="gradient-text" style="font-weight: 700; font-size: 1.2rem;">Lumina is designing your curriculum...</p>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Tailoring content for your specific goal.</p>
                     </div>
 
-                    <!-- Lesson Module -->
-                    <div id="lesson-module" class="glass-panel lesson-panel hidden">
-                        <div class="lesson-header">
-                            <span class="badge" id="module-badge">Module 1</span>
+                    <!-- Lesson -->
+                    <article id="lesson-module" class="glass-panel lesson-panel hidden">
+                        <header class="lesson-header">
+                            <div style="display:flex; justify-content: space-between; align-items: center;">
+                                <span class="badge" id="module-badge">Module 1</span>
+                                <span class="module-time" id="module-time-display"><i class="fa-regular fa-clock"></i> 5 min</span>
+                            </div>
                             <h2 id="lesson-title">Lesson Title</h2>
-                        </div>
-                        
-                        <div class="lesson-content-area" id="lesson-content">
-                            <!-- AI Generated Content goes here -->
-                        </div>
+                        </header>
+                        <div class="lesson-content-area mt-4" id="lesson-content"></div>
+                        <footer class="lesson-actions">
+                            <button id="btn-simplify" class="secondary-btn">
+                                <i class="fa-solid fa-wand-sparkles"></i> Simplify
+                            </button>
+                            <button id="btn-ready-quiz" class="primary-btn">
+                                Concept Check <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </footer>
+                    </article>
 
-                        <div class="lesson-actions">
-                            <button id="btn-simplify" class="secondary-btn"><i class="fa-solid fa-down-long"></i> Simplify</button>
-                            <button id="btn-ready-quiz" class="primary-btn">I Understand <i class="fa-solid fa-check"></i></button>
-                        </div>
-                    </div>
-
-                    <!-- Quiz/Diagnostic Module -->
-                    <div id="quiz-module" class="glass-panel quiz-panel hidden">
-                        <div class="quiz-header">
-                            <h3><i class="fa-solid fa-clipboard-question"></i> Concept Check</h3>
-                            <p>Let's verify your understanding before moving on.</p>
-                        </div>
-                        
-                        <div class="quiz-question" id="quiz-question">
-                            <!-- Question text -->
-                        </div>
-                        
-                        <div class="quiz-options" id="quiz-options">
-                            <!-- Populated by JS -->
-                        </div>
-
-                        <div id="quiz-feedback" class="quiz-feedback hidden">
-                            <!-- Feedback text -->
-                        </div>
-
+                    <!-- Quiz -->
+                    <section id="quiz-module" class="glass-panel quiz-panel hidden">
+                        <header class="quiz-header">
+                            <h3><i class="fa-solid fa-clipboard-list"></i> Concept Check</h3>
+                            <p>Verify your mastery before advancing.</p>
+                        </header>
+                        <div class="quiz-question mb-2" id="quiz-question"></div>
+                        <div class="quiz-options" id="quiz-options"></div>
+                        <div id="quiz-feedback" class="quiz-feedback hidden" role="alert"></div>
                         <div class="quiz-actions hidden" id="quiz-actions">
-                            <button id="btn-next-module" class="primary-btn">Next Module <i class="fa-solid fa-arrow-right"></i></button>
+                            <button id="btn-next-module" class="primary-btn">
+                                Next Module <i class="fa-solid fa-arrow-right"></i>
+                            </button>
                         </div>
-                    </div>
-                    
-                    <!-- Completion Module -->
-                    <div id="completion-module" class="glass-panel completion-panel hidden text-center">
+                    </section>
+
+                    <!-- Completion -->
+                    <section id="completion-module" class="glass-panel completion-panel hidden text-center">
                         <div class="completion-icon">
-                            <i class="fa-solid fa-trophy glowing-icon" style="font-size: 4rem; color: var(--accent-gold)"></i>
+                            <i class="fa-solid fa-trophy glowing-icon logo-large" style="color: var(--accent-gold)"></i>
                         </div>
-                        <h2 class="gradient-text">Journey Complete!</h2>
-                        <p>You've successfully mastered the fundamentals of <strong id="completion-topic">this topic</strong> at your level.</p>
+                        <h2 class="gradient-text" style="font-size: 3rem;">Mastery Achieved!</h2>
+                        <p class="mt-4">You've completed your journey on <strong id="completion-topic">Topic</strong>.</p>
+                        
                         <div class="stats-row">
                             <div class="stat-box">
                                 <h3>Modules</h3>
@@ -157,12 +222,38 @@
                                 <p id="stat-adaptations">0</p>
                             </div>
                         </div>
-                        <button id="btn-new-topic" class="primary-btn mt-4">Learn Something New</button>
-                    </div>
 
-                </section>
+                        <div style="display:flex; gap: 1rem; justify-content: center;">
+                            <button id="btn-view-cert" class="secondary-btn">
+                                <i class="fa-solid fa-file-contract"></i> View Certificate
+                            </button>
+                            <button id="btn-new-topic" class="primary-btn">
+                                New Topic <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </section>
+                </main>
             </div>
-        </main>
+        </div>
+    </div>
+
+    <!-- Certificate Modal -->
+    <div id="cert-modal" class="modal-overlay">
+        <div class="certificate-card glass-panel">
+            <button class="cert-close" id="btn-close-cert"><i class="fa-solid fa-xmark"></i></button>
+            <div class="cert-border"></div>
+            <div class="cert-header">Certificate of Mastery</div>
+            <div class="cert-title">This certifies that you have mastered</div>
+            <div class="cert-name" id="cert-topic-name">Topic Name</div>
+            <p style="color: var(--text-muted); font-style: italic;">Verified by Lumina AI Education Systems</p>
+            <div class="cert-footer">
+                <div style="text-align: left;">
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Date: <span id="cert-date">April 2026</span></p>
+                    <p style="font-family: 'Outfit'; font-weight: 700; color: var(--accent-primary);">LUMINA LEARN</p>
+                </div>
+                <div class="cert-seal"><i class="fa-solid fa-shield-halved"></i></div>
+            </div>
+        </div>
     </div>
 
     <script src="app.js"></script>

@@ -1,0 +1,21 @@
+# Exclude version control and dev artifacts from the Docker image
+.git
+.gitignore
+
+# Exclude test files (not needed in production image)
+tests/
+
+# Exclude docs
+README.md
+
+# Exclude editor config
+.vscode/
+.idea/
+
+# Exclude OS artifacts
+.DS_Store
+Thumbs.db
+
+# Exclude any local env files
+*.env
+.env*

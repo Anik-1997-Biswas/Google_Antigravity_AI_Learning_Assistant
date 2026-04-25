@@ -1,296 +1,305 @@
-// State Management
+'use strict';
+
+/**
+ * @fileoverview Lumina Learn — Premium Adaptive AI Learning Assistant
+ * @version      2.1.0
+ */
+
+/* ================================================================
+   CONFIG
+   ================================================================ */
+const CONFIG = Object.freeze({
+    AI_DELAY_MS: 1800,
+    CONTENT_SWAP_MS: 300,
+    MAX_TOPIC_LENGTH: 100,
+    GA_MEASUREMENT_ID: 'G-XXXXXXXXXX',
+    XP_PER_MODULE: 150,
+    XP_PER_QUIZ: 250,
+});
+
+/* ================================================================
+   STATE
+   ================================================================ */
 const state = {
     topic: '',
     level: '',
+    goal: '',
     currentModuleIndex: 0,
     modules: [],
     adaptations: 0,
-    isSimplifying: false
+    isSimplifying: false,
+    xp: 0,
+    streak: 1, // Default mock streak
 };
 
-// DOM Elements
+/* ================================================================
+   DOM CACHE
+   ================================================================ */
 const elements = {
     screens: {
         onboarding: document.getElementById('onboarding-screen'),
-        dashboard: document.getElementById('dashboard-screen')
+        dashboard:  document.getElementById('dashboard-screen'),
     },
     panels: {
-        loading: document.getElementById('ai-loading'),
-        lesson: document.getElementById('lesson-module'),
-        quiz: document.getElementById('quiz-module'),
-        completion: document.getElementById('completion-module')
+        loading:    document.getElementById('ai-loading'),
+        lesson:     document.getElementById('lesson-module'),
+        quiz:       document.getElementById('quiz-module'),
+        completion: document.getElementById('completion-module'),
     },
     nav: {
-        topic: document.getElementById('nav-topic-display'),
-        level: document.getElementById('nav-level-display')
+        topic:   document.getElementById('nav-topic-display'),
+        xpBadge: document.getElementById('xp-count'),
     },
     sidebar: {
-        list: document.getElementById('learning-path-list'),
+        list:         document.getElementById('learning-path-list'),
         progressFill: document.getElementById('overall-progress'),
-        progressText: document.getElementById('progress-text')
+        progressText: document.getElementById('progress-text'),
+        goalTag:      document.getElementById('goal-tag'),
+        totalPoints:  document.getElementById('total-points'),
+        streakDays:   document.getElementById('streak-days'),
     },
     lesson: {
-        badge: document.getElementById('module-badge'),
-        title: document.getElementById('lesson-title'),
-        content: document.getElementById('lesson-content'),
+        badge:     document.getElementById('module-badge'),
+        time:      document.getElementById('module-time-display'),
+        title:     document.getElementById('lesson-title'),
+        content:   document.getElementById('lesson-content'),
         btnSimplify: document.getElementById('btn-simplify'),
-        btnReady: document.getElementById('btn-ready-quiz')
+        btnReady:    document.getElementById('btn-ready-quiz'),
     },
     quiz: {
         question: document.getElementById('quiz-question'),
-        options: document.getElementById('quiz-options'),
+        options:  document.getElementById('quiz-options'),
         feedback: document.getElementById('quiz-feedback'),
-        actions: document.getElementById('quiz-actions'),
-        btnNext: document.getElementById('btn-next-module')
+        actions:  document.getElementById('quiz-actions'),
+        btnNext:  document.getElementById('btn-next-module'),
     },
     completion: {
-        topic: document.getElementById('completion-topic'),
-        modulesCount: document.getElementById('stat-modules'),
+        topic:            document.getElementById('completion-topic'),
+        modulesCount:     document.getElementById('stat-modules'),
         adaptationsCount: document.getElementById('stat-adaptations'),
-        btnNew: document.getElementById('btn-new-topic')
+        btnNew:           document.getElementById('btn-new-topic'),
+        btnViewCert:      document.getElementById('btn-view-cert'),
+    },
+    modal: {
+        overlay:    document.getElementById('cert-modal'),
+        topicName:  document.getElementById('cert-topic-name'),
+        date:       document.getElementById('cert-date'),
+        btnClose:   document.getElementById('btn-close-cert'),
+    },
+    misc: {
+        announcer: document.getElementById('aria-announcer'),
+        formError: document.getElementById('form-error'),
     }
 };
 
-// Event Listeners
-document.getElementById('onboarding-form').addEventListener('submit', handleOnboarding);
-elements.lesson.btnSimplify.addEventListener('click', simplifyCurrentLesson);
-elements.lesson.btnReady.addEventListener('click', showQuiz);
-elements.quiz.btnNext.addEventListener('click', nextModule);
-elements.completion.btnNew.addEventListener('click', resetApp);
+/* ================================================================
+   HELPERS & UTILS
+   ================================================================ */
 
-// Functions
+function trackEvent(name, params = {}) {
+    try { if (typeof gtag === 'function') gtag('event', name, params); } catch (e) {}
+}
+
+function announce(msg) {
+    if (!elements.misc.announcer) return;
+    elements.misc.announcer.textContent = '';
+    requestAnimationFrame(() => elements.misc.announcer.textContent = msg);
+}
+
+function escapeHTML(str) {
+    const m = {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'};
+    return String(str).replace(/[&<>'"]/g, t => m[t] || t);
+}
+
+function updateStatsUI() {
+    elements.nav.xpBadge.textContent = state.xp;
+    elements.sidebar.totalPoints.textContent = state.xp;
+    elements.sidebar.streakDays.textContent = state.streak;
+}
+
+function hideAllPanels() {
+    Object.values(elements.panels).forEach(p => {
+        p.classList.add('hidden');
+        p.classList.remove('slide-in-up');
+    });
+}
+
+/* ================================================================
+   BUSINESS LOGIC
+   ================================================================ */
+
 function handleOnboarding(e) {
     e.preventDefault();
-    const topicInput = document.getElementById('topic-input').value.trim();
-    const levelInput = document.querySelector('input[name="level"]:checked').value;
-    
-    if (!topicInput) return;
+    const topicInput = document.getElementById('topic-input');
+    const levelInput = document.getElementById('level-select');
+    const goalInput  = document.getElementById('goal-select');
 
-    state.topic = topicInput;
-    state.level = levelInput;
+    const topicValue = topicInput.value.trim();
+    if (!topicValue) {
+        elements.misc.formError.textContent = 'Please enter a topic.';
+        elements.misc.formError.classList.remove('hidden');
+        return;
+    }
 
-    // Update Nav
+    state.topic = topicValue;
+    state.level = levelInput.value;
+    state.goal  = goalInput.value;
+
+    // Update UI
     elements.nav.topic.innerHTML = `Learning: <strong>${escapeHTML(state.topic)}</strong>`;
-    elements.nav.level.textContent = state.level.charAt(0).toUpperCase() + state.level.slice(1);
+    elements.sidebar.goalTag.textContent = `Goal: ${state.goal.charAt(0).toUpperCase() + state.goal.slice(1)}`;
+    updateStatsUI();
 
-    // Switch Screens
     elements.screens.onboarding.classList.remove('active');
     setTimeout(() => {
         elements.screens.dashboard.classList.remove('hidden');
         elements.screens.dashboard.classList.add('active');
         generateCurriculum();
-    }, 300);
+    }, CONFIG.CONTENT_SWAP_MS);
+
+    trackEvent('onboarding_complete', { topic: state.topic, level: state.level, goal: state.goal });
 }
 
 function generateCurriculum() {
-    // Show Loading
     hideAllPanels();
     elements.panels.loading.classList.remove('hidden');
+    announce('Designing your curriculum...');
 
-    // Simulate AI API Call (delay)
     setTimeout(() => {
-        // Mock Curriculum based on generic structure
-        state.modules = [
-            {
-                title: `Introduction to ${state.topic}`,
-                content: `
-                    <p>Welcome to the first module of your journey into <strong>${state.topic}</strong>. As a ${state.level} learner, we'll start with the fundamental concepts.</p>
-                    <p>Here are the key takeaways:</p>
-                    <ul>
-                        <li>Understanding the core definition.</li>
-                        <li>Why ${state.topic} matters in the modern world.</li>
-                        <li>Basic terminology.</li>
-                    </ul>
-                    <p>Take your time to digest this information. Whenever you're ready, we'll verify your understanding.</p>
-                `,
-                simplifiedContent: `
-                    <p>Let's break <strong>${state.topic}</strong> down into simpler terms.</p>
-                    <p>Imagine it like building a house. Before you build the walls, you need a strong foundation. That's what this module is about.</p>
-                    <p>Key points:</p>
-                    <ul>
-                        <li>What is it? (The definition)</li>
-                        <li>Why do we care? (The importance)</li>
-                        <li>What words do we use? (The terms)</li>
-                    </ul>
-                `,
-                quiz: {
-                    question: `What is the primary goal of this introductory module?`,
-                    options: [
-                        { text: `To learn advanced techniques immediately.`, isCorrect: false },
-                        { text: `To understand the fundamental concepts and terminology.`, isCorrect: true },
-                        { text: `To skip to practical application.`, isCorrect: false }
-                    ],
-                    explanation: `Starting with fundamentals ensures a strong foundation before moving to complex topics.`
-                }
-            },
-            {
-                title: `Core Mechanics of ${state.topic}`,
-                content: `
-                    <p>Now that you have the basics down, let's explore how <strong>${state.topic}</strong> actually works.</p>
-                    <p>The mechanics typically involve:</p>
-                    <ul>
-                        <li>Component interaction and systematic flow.</li>
-                        <li>Standard practices and common patterns.</li>
-                    </ul>
-                    <p>It's crucial to grasp these mechanics as they form the basis for everything else.</p>
-                `,
-                simplifiedContent: `
-                    <p>Let's make the mechanics simpler.</p>
-                    <p>Think of it like a clock. There are many gears turning together to make the hands move. We are looking at those gears now.</p>
-                    <ul>
-                        <li>How parts work together.</li>
-                        <li>Common ways things are done.</li>
-                    </ul>
-                `,
-                quiz: {
-                    question: `Why is it important to grasp the core mechanics?`,
-                    options: [
-                        { text: `Because they form the basis for everything else.`, isCorrect: true },
-                        { text: `Because it's the only way to memorize terms.`, isCorrect: false },
-                        { text: `Mechanics are actually not that important.`, isCorrect: false }
-                    ],
-                    explanation: `The mechanics are the underlying rules that govern the topic.`
-                }
-            },
-            {
-                title: `Practical Applications`,
-                content: `
-                    <p>In this final module, we bridge theory and practice for <strong>${state.topic}</strong>.</p>
-                    <p>Applying what you've learned involves:</p>
-                    <ul>
-                        <li>Identifying real-world use cases.</li>
-                        <li>Applying principles to solve problems.</li>
-                        <li>Recognizing edge cases and limitations.</li>
-                    </ul>
-                    <p>You are now ready to apply your knowledge.</p>
-                `,
-                simplifiedContent: `
-                    <p>Let's simplify application.</p>
-                    <p>This is where you take the tool out of the toolbox and actually use it to fix something.</p>
-                    <ul>
-                        <li>Where is it used in real life?</li>
-                        <li>How does it solve problems?</li>
-                    </ul>
-                `,
-                quiz: {
-                    question: `What is meant by 'bridging theory and practice'?`,
-                    options: [
-                        { text: `Reading more books about the topic.`, isCorrect: false },
-                        { text: `Applying learned concepts to real-world situations.`, isCorrect: true },
-                        { text: `Ignoring the theory completely.`, isCorrect: false }
-                    ],
-                    explanation: `Application is the act of using theoretical knowledge in practical scenarios.`
-                }
-            }
-        ];
-
+        state.modules = buildPremiumModules(state.topic, state.level, state.goal);
         renderSidebar();
         loadModule(0);
-    }, 2000);
+    }, CONFIG.AI_DELAY_MS);
+}
+
+function buildPremiumModules(topic, level, goal) {
+    const t = escapeHTML(topic);
+    return [
+        {
+            title: `Foundations of ${topic}`,
+            time: '5 min',
+            content: `<p>Welcome to your mastery journey of <strong>${t}</strong>. Since your goal is <em>${escapeHTML(goal)}</em>, we've optimized this starting module to highlight core principles first.</p><p>Key Focus Areas:</p><ul><li>Conceptual Framework of ${t}</li><li>Historical Evolution</li><li>Current Industry Standards</li></ul>`,
+            simplified: `<p>Let's make <strong>${t}</strong> easy. It's like the DNA of this subject — everything else grows from here.</p>`,
+            quiz: {
+                q: `What is the primary role of the Foundations module in your ${escapeHTML(goal)} journey?`,
+                options: [
+                    { t: `To provide the mandatory starting framework.`, c: true },
+                    { t: `To skip to advanced use cases immediately.`, c: false },
+                    { t: `To focus purely on memorizing names.`, c: false }
+                ],
+                exp: `Foundations build the structure needed for mastery.`
+            }
+        },
+        {
+            title: `Operational Mechanics`,
+            time: '8 min',
+            content: `<p>Moving beyond theory, we now examine the mechanics of <strong>${t}</strong>. We'll look at the 'How' behind the 'What'.</p><ul><li>Systematic Workflow</li><li>Component Interdependence</li><li>Optimization Strategies</li></ul>`,
+            simplified: `<p>Think of it like a machine. We're looking at how the gears turn together to produce results in ${t}.</p>`,
+            quiz: {
+                q: `How do mechanics differ from foundations in this context?`,
+                options: [
+                    { t: `Foundations are 'What', Mechanics are 'How'.`, c: true },
+                    { t: `They are exactly the same thing.`, c: false },
+                    { t: `Mechanics are less important for ${escapeHTML(goal)}.`, c: false }
+                ],
+                exp: `Mechanics explain the functional processes.`
+            }
+        },
+        {
+            title: `Strategic Implementation`,
+            time: '6 min',
+            content: `<p>In this final stage, we bridge to <em>Strategic Mastery</em>. This is where you apply ${t} to solve high-value problems.</p><ul><li>Real-world Application</li><li>Risk Assessment</li><li>Future Trends in ${t}</li></ul>`,
+            simplified: `<p>This is the "Pro" level. You use your tools to build something amazing with ${t}.</p>`,
+            quiz: {
+                q: `What is the final step in achieving your goal of ${escapeHTML(goal)}?`,
+                options: [
+                    { t: `Strategic implementation in real-world scenarios.`, c: true },
+                    { t: `Simply finishing the reading material.`, c: false },
+                    { t: `Deleting the app and moving on.`, c: false }
+                ],
+                exp: `Strategy is the pinnacle of the learning journey.`
+            }
+        }
+    ];
 }
 
 function renderSidebar() {
     elements.sidebar.list.innerHTML = '';
-    state.modules.forEach((mod, index) => {
+    const frag = document.createDocumentFragment();
+    state.modules.forEach((m, i) => {
         const li = document.createElement('li');
-        li.className = 'path-item';
-        if (index === state.currentModuleIndex) li.classList.add('active');
-        if (index < state.currentModuleIndex) li.classList.add('completed');
-        
+        li.className = `path-item ${i === state.currentModuleIndex ? 'active' : ''}`;
         li.innerHTML = `
-            <div class="path-icon"><i class="fa-solid ${index < state.currentModuleIndex ? 'fa-check' : 'fa-book'}"></i></div>
-            <div class="path-content">
-                <h3>Module ${index + 1}</h3>
-                <p>${mod.title}</p>
+            <div style="display:flex; align-items:center; gap: 1rem;">
+                <div class="path-icon"><i class="fa-solid ${i < state.currentModuleIndex ? 'fa-check-circle' : 'fa-circle-dot'}"></i></div>
+                <div>
+                    <h3 style="font-size: 0.9rem;">${m.title}</h3>
+                    <div class="module-time"><i class="fa-regular fa-clock"></i> ${m.time}</div>
+                </div>
             </div>
         `;
-        elements.sidebar.list.appendChild(li);
+        frag.appendChild(li);
     });
-
-    updateProgress();
-}
-
-function updateProgress() {
-    const total = state.modules.length;
-    const completed = state.currentModuleIndex;
-    const percentage = Math.round((completed / total) * 100);
+    elements.sidebar.list.appendChild(frag);
     
-    elements.sidebar.progressFill.style.width = `${percentage}%`;
-    elements.sidebar.progressText.textContent = `${percentage}% Completed`;
+    const prog = Math.round((state.currentModuleIndex / state.modules.length) * 100);
+    elements.sidebar.progressFill.style.width = `${prog}%`;
+    elements.sidebar.progressText.textContent = `${prog}% Done`;
 }
 
-function hideAllPanels() {
-    Object.values(elements.panels).forEach(panel => {
-        panel.classList.add('hidden');
-        panel.classList.remove('slide-in-up');
-    });
-}
-
-function loadModule(index) {
+function loadModule(idx) {
     hideAllPanels();
-    state.currentModuleIndex = index;
+    state.currentModuleIndex = idx;
     state.isSimplifying = false;
-    
     renderSidebar();
 
-    const moduleData = state.modules[index];
+    const m = state.modules[idx];
+    elements.lesson.badge.textContent = `Module ${idx + 1} of ${state.modules.length}`;
+    elements.lesson.time.innerHTML = `<i class="fa-regular fa-clock"></i> ${m.time}`;
+    elements.lesson.title.textContent = m.title;
+    elements.lesson.content.innerHTML = m.content;
     
-    // Update Lesson UI
-    elements.lesson.badge.textContent = `Module ${index + 1} of ${state.modules.length}`;
-    elements.lesson.title.textContent = moduleData.title;
-    elements.lesson.content.innerHTML = moduleData.content;
-    
-    // Reset buttons
     elements.lesson.btnSimplify.disabled = false;
-    elements.lesson.btnSimplify.innerHTML = '<i class="fa-solid fa-down-long"></i> Simplify';
+    elements.lesson.btnSimplify.innerHTML = '<i class="fa-solid fa-wand-sparkles"></i> Simplify';
 
     elements.panels.lesson.classList.remove('hidden');
-    // Trigger reflow for animation
     void elements.panels.lesson.offsetWidth;
     elements.panels.lesson.classList.add('slide-in-up');
+    
+    announce(`Module ${idx + 1} loaded.`);
+    trackEvent('module_load', { index: idx });
 }
 
-function simplifyCurrentLesson() {
+function simplifyLesson() {
     if (state.isSimplifying) return;
     state.isSimplifying = true;
     state.adaptations++;
-
-    const moduleData = state.modules[state.currentModuleIndex];
     
+    const m = state.modules[state.currentModuleIndex];
     elements.lesson.content.style.opacity = '0';
     
     setTimeout(() => {
-        elements.lesson.content.innerHTML = `
-            <div style="border-left: 4px solid var(--accent-tertiary); padding-left: 1rem; margin-bottom: 1rem;">
-                <small style="color: var(--accent-tertiary); text-transform: uppercase; font-weight: bold;">Simplified View</small>
-            </div>
-            ${moduleData.simplifiedContent}
-        `;
+        elements.lesson.content.innerHTML = `<div class="simplified-banner"><small>Simplified View</small></div>${m.simplified}`;
         elements.lesson.content.style.opacity = '1';
         elements.lesson.btnSimplify.disabled = true;
         elements.lesson.btnSimplify.innerHTML = '<i class="fa-solid fa-check"></i> Simplified';
-    }, 300);
+        announce('Content simplified.');
+    }, CONFIG.CONTENT_SWAP_MS);
 }
 
 function showQuiz() {
     hideAllPanels();
-    
-    const moduleData = state.modules[state.currentModuleIndex];
-    const quizData = moduleData.quiz;
-
-    elements.quiz.question.textContent = quizData.question;
+    const q = state.modules[state.currentModuleIndex].quiz;
+    elements.quiz.question.textContent = q.q;
     elements.quiz.options.innerHTML = '';
     elements.quiz.feedback.classList.add('hidden');
     elements.quiz.actions.classList.add('hidden');
 
-    quizData.options.forEach((opt, idx) => {
+    q.options.forEach((o, i) => {
         const div = document.createElement('div');
         div.className = 'quiz-option';
-        div.innerHTML = `
-            <div class="option-indicator">${String.fromCharCode(65 + idx)}</div>
-            <div class="option-text">${escapeHTML(opt.text)}</div>
-        `;
-        div.addEventListener('click', () => handleQuizAnswer(div, opt, quizData.explanation));
+        div.innerHTML = `<div class="option-indicator">${String.fromCharCode(65 + i)}</div><div class="option-text">${escapeHTML(o.t)}</div>`;
+        div.addEventListener('click', () => handleQuiz(div, o, q.exp));
         elements.quiz.options.appendChild(div);
     });
 
@@ -299,56 +308,32 @@ function showQuiz() {
     elements.panels.quiz.classList.add('slide-in-up');
 }
 
-function handleQuizAnswer(selectedDiv, optionData, explanation) {
-    // Disable all options
-    const allOptions = document.querySelectorAll('.quiz-option');
-    allOptions.forEach(opt => {
-        opt.style.pointerEvents = 'none';
-        opt.classList.remove('selected', 'correct', 'incorrect');
-    });
-
-    selectedDiv.classList.add('selected');
+function handleQuiz(el, o, exp) {
+    document.querySelectorAll('.quiz-option').forEach(opt => opt.style.pointerEvents = 'none');
+    el.classList.add('selected');
 
     setTimeout(() => {
         elements.quiz.feedback.classList.remove('hidden', 'success', 'error');
-        
-        if (optionData.isCorrect) {
-            selectedDiv.classList.add('correct');
+        if (o.c) {
+            el.classList.add('correct');
             elements.quiz.feedback.classList.add('success');
-            elements.quiz.feedback.innerHTML = `<strong>Correct!</strong> ${explanation}`;
+            elements.quiz.feedback.innerHTML = `<strong>Mastered!</strong> ${exp}`;
+            state.xp += CONFIG.XP_PER_QUIZ;
+            updateStatsUI();
             elements.quiz.actions.classList.remove('hidden');
-            
-            // Check if it's the last module
-            if (state.currentModuleIndex === state.modules.length - 1) {
-                elements.quiz.btnNext.innerHTML = 'Complete Journey <i class="fa-solid fa-trophy"></i>';
-            } else {
-                elements.quiz.btnNext.innerHTML = 'Next Module <i class="fa-solid fa-arrow-right"></i>';
-            }
-
+            const isLast = state.currentModuleIndex === state.modules.length - 1;
+            elements.quiz.btnNext.innerHTML = isLast ? 'Finish Journey <i class="fa-solid fa-trophy"></i>' : 'Next Module <i class="fa-solid fa-arrow-right"></i>';
         } else {
-            selectedDiv.classList.add('incorrect');
+            el.classList.add('incorrect');
             elements.quiz.feedback.classList.add('error');
-            elements.quiz.feedback.innerHTML = `<strong>Not quite.</strong> Let's review the material and try again.`;
-            
-            // Adapt if they fail
-            state.adaptations++;
-            
-            // Add a "Review Concept" button to go back
-            elements.quiz.actions.innerHTML = `<button id="btn-review" class="secondary-btn"><i class="fa-solid fa-rotate-left"></i> Review Concept</button>`;
-            elements.quiz.actions.classList.remove('hidden');
-            document.getElementById('btn-review').addEventListener('click', () => {
-                // Restore next button for later
-                elements.quiz.actions.innerHTML = `<button id="btn-next-module" class="primary-btn">Next Module <i class="fa-solid fa-arrow-right"></i></button>`;
-                elements.quiz.btnNext = document.getElementById('btn-next-module');
-                elements.quiz.btnNext.addEventListener('click', nextModule);
-                loadModule(state.currentModuleIndex);
-                if(!state.isSimplifying) simplifyCurrentLesson(); // Auto-simplify on review
-            });
+            elements.quiz.feedback.innerHTML = `<strong>Keep trying.</strong> Let's review the concepts.`;
+            setTimeout(() => loadModule(state.currentModuleIndex), 1500);
         }
-    }, 500);
+    }, 600);
 }
 
 function nextModule() {
+    state.xp += CONFIG.XP_PER_MODULE;
     if (state.currentModuleIndex < state.modules.length - 1) {
         loadModule(state.currentModuleIndex + 1);
     } else {
@@ -358,45 +343,40 @@ function nextModule() {
 
 function showCompletion() {
     hideAllPanels();
-    state.currentModuleIndex++; // To make progress 100%
+    state.currentModuleIndex++;
     renderSidebar();
-
     elements.completion.topic.textContent = state.topic;
     elements.completion.modulesCount.textContent = state.modules.length;
     elements.completion.adaptationsCount.textContent = state.adaptations;
-
     elements.panels.completion.classList.remove('hidden');
     void elements.panels.completion.offsetWidth;
     elements.panels.completion.classList.add('slide-in-up');
+    trackEvent('journey_complete', { topic: state.topic, xp: state.xp });
 }
 
-function resetApp() {
-    state.topic = '';
-    state.level = '';
-    state.currentModuleIndex = 0;
-    state.modules = [];
-    state.adaptations = 0;
-    
-    document.getElementById('topic-input').value = '';
-    elements.screens.dashboard.classList.remove('active');
-    elements.screens.dashboard.classList.add('hidden');
-    elements.screens.onboarding.classList.add('active');
-    
-    // Reset Next Button just in case
-    elements.quiz.actions.innerHTML = `<button id="btn-next-module" class="primary-btn">Next Module <i class="fa-solid fa-arrow-right"></i></button>`;
-    elements.quiz.btnNext = document.getElementById('btn-next-module');
-    elements.quiz.btnNext.addEventListener('click', nextModule);
+function showCertificate() {
+    elements.modal.topicName.textContent = state.topic;
+    elements.modal.date.textContent = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric' });
+    elements.modal.overlay.classList.add('active');
+    trackEvent('certificate_viewed');
 }
 
-// Utils
-function escapeHTML(str) {
-    return str.replace(/[&<>'"]/g, 
-        tag => ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            "'": '&#39;',
-            '"': '&quot;'
-        }[tag])
-    );
+function closeCertificate() {
+    elements.modal.overlay.classList.remove('active');
 }
+
+function reset() {
+    location.reload(); // Hard reset for clean slate
+}
+
+/* ================================================================
+   LISTENERS
+   ================================================================ */
+document.getElementById('onboarding-form').addEventListener('submit', handleOnboarding);
+elements.lesson.btnSimplify.addEventListener('click', simplifyLesson);
+elements.lesson.btnReady.addEventListener('click', showQuiz);
+elements.quiz.btnNext.addEventListener('click', nextModule);
+elements.completion.btnNew.addEventListener('click', reset);
+elements.completion.btnViewCert.addEventListener('click', showCertificate);
+elements.modal.btnClose.addEventListener('click', closeCertificate);
+elements.modal.overlay.addEventListener('click', (e) => { if(e.target === elements.modal.overlay) closeCertificate(); });
