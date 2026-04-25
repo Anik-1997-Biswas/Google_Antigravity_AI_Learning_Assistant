@@ -1,3 +1,31 @@
+
+:root {
+    /* Soft Celestial Palette */
+    --bg-main:          #fdfdfd;
+    --bg-accent:        #f0f4ff;
+    --glass-bg:         rgba(255, 255, 255, 0.75);
+    --panel-border:     rgba(226, 232, 240, 0.8);
+    
+    /* Elegant Accents */
+    --indigo:           #6366f1;
+    --violet:           #8b5cf6;
+    --mint:             #10b981;
+    --indigo-glow:      rgba(99, 102, 241, 0.15);
+    
+    /* Text */
+    --text-primary:     #0f172a; /* Slate 900 */
+    --text-secondary:   #475569; /* Slate 600 */
+    --text-muted:       #94a3b8; /* Slate 400 */
+    
+    /* Shadows & Effects */
+    --shadow-soft:      0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    --glass-blur:       blur(20px);
+    
+    /* Spacing */
+    --radius-xl:        1.5rem;
+    --radius-md:        1rem;
+}
+
 /* ── DARK THEME OVERRIDES ───────────────────────────────── */
 body.dark-theme {
     --bg-main:          #050805;
@@ -27,33 +55,6 @@ body.dark-theme input, body.dark-theme select {
 body.dark-theme select option {
     background: #1a1a1a;
     color: #ecfdf5;
-}
-
-:root {
-    /* Soft Celestial Palette */
-    --bg-main:          #fdfdfd;
-    --bg-accent:        #f0f4ff;
-    --glass-bg:         rgba(255, 255, 255, 0.75);
-    --panel-border:     rgba(226, 232, 240, 0.8);
-    
-    /* Elegant Accents */
-    --indigo:           #6366f1;
-    --violet:           #8b5cf6;
-    --mint:             #10b981;
-    --indigo-glow:      rgba(99, 102, 241, 0.15);
-    
-    /* Text */
-    --text-primary:     #0f172a; /* Slate 900 */
-    --text-secondary:   #475569; /* Slate 600 */
-    --text-muted:       #94a3b8; /* Slate 400 */
-    
-    /* Shadows & Effects */
-    --shadow-soft:      0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-    --glass-blur:       blur(20px);
-    
-    /* Spacing */
-    --radius-xl:        1.5rem;
-    --radius-md:        1rem;
 }
 
 /* ── 1. BASE & RESET ─────────────────────────────────────── */

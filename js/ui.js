@@ -30,29 +30,6 @@ export const elements = {
         btnReady:    document.getElementById('btn-ready-quiz'),
         btnListen:   document.getElementById('btn-listen'),
     },
-...
-/**
- * Agent Voice Synthesis (A11y & Wow Factor).
- */
-let currentUtterance = null;
-export function toggleVoice(text) {
-    if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-        elements.lesson.btnListen.innerHTML = '<i class="fa-solid fa-volume-high"></i> Listen';
-        return;
-    }
-    
-    currentUtterance = new SpeechSynthesisUtterance(text);
-    currentUtterance.rate = 1.1;
-    currentUtterance.pitch = 1.0;
-    
-    currentUtterance.onend = () => {
-        elements.lesson.btnListen.innerHTML = '<i class="fa-solid fa-volume-high"></i> Listen';
-    };
-
-    window.speechSynthesis.speak(currentUtterance);
-    elements.lesson.btnListen.innerHTML = '<i class="fa-solid fa-circle-stop"></i> Stop';
-}
     quiz: {
         question: document.getElementById('quiz-question'),
         options:  document.getElementById('quiz-options'),
@@ -60,18 +37,18 @@ export function toggleVoice(text) {
         btnNext:  document.getElementById('btn-next-module'),
     },
     completion: {
-        topic:      document.getElementById('completion-topic'),
-        btnNew:     document.getElementById('btn-new-topic'),
-        btnViewCert:document.getElementById('btn-view-cert'),
+        topic:       document.getElementById('completion-topic'),
+        btnNew:      document.getElementById('btn-new-topic'),
+        btnViewCert: document.getElementById('btn-view-cert'),
     },
     modal: {
-        overlay:    document.getElementById('cert-modal'),
-        topicName:  document.getElementById('cert-topic-name'),
-        btnClose:   document.getElementById('btn-close-cert'),
+        overlay:   document.getElementById('cert-modal'),
+        topicName: document.getElementById('cert-topic-name'),
+        btnClose:  document.getElementById('btn-close-cert'),
     },
     misc: {
-        announcer: document.getElementById('aria-announcer'),
-        thoughtLog:document.getElementById('thought-log'),
+        announcer:  document.getElementById('aria-announcer'),
+        thoughtLog: document.getElementById('thought-log'),
     }
 };
 
@@ -95,10 +72,39 @@ export async function typeContent(element, text, speed = 10) {
     });
 }
 
+/**
+ * Agent Voice Synthesis (A11y & Wow Factor).
+ */
+let currentUtterance = null;
+export function toggleVoice(text) {
+    if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        if (elements.lesson.btnListen) {
+            elements.lesson.btnListen.innerHTML = '<i class="fa-solid fa-volume-high"></i> Listen';
+        }
+        return;
+    }
+
+    currentUtterance = new SpeechSynthesisUtterance(text);
+    currentUtterance.rate = 1.1;
+    currentUtterance.pitch = 1.0;
+
+    currentUtterance.onend = () => {
+        if (elements.lesson.btnListen) {
+            elements.lesson.btnListen.innerHTML = '<i class="fa-solid fa-volume-high"></i> Listen';
+        }
+    };
+
+    window.speechSynthesis.speak(currentUtterance);
+    if (elements.lesson.btnListen) {
+        elements.lesson.btnListen.innerHTML = '<i class="fa-solid fa-circle-stop"></i> Stop';
+    }
+}
+
 export function updateStatsUI() {
     requestAnimationFrame(() => {
-        elements.nav.xpBadge.textContent = state.xp;
-        elements.nav.streak.textContent = state.streak;
+        if (elements.nav.xpBadge) elements.nav.xpBadge.textContent = state.xp;
+        if (elements.nav.streak)  elements.nav.streak.textContent  = state.streak;
     });
 }
 
@@ -108,5 +114,7 @@ export function announce(msg) {
 }
 
 export function hideAllOutputs() {
-    Object.values(elements.panels).forEach(p => p.classList.add('hidden'));
+    Object.values(elements.panels).forEach(p => {
+        if (p) p.classList.add('hidden');
+    });
 }

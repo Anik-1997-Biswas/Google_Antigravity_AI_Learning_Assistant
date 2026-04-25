@@ -59,32 +59,32 @@ async function runReasoningFlow() {
     // Step 1: Analyze Intent
     logStep('Analyzing user intent and goal alignment...');
     const analysis = await Agent.analyzeIntent(state.topic, state.level, state.goal);
-    await new Promise(r => setTimeout(r, 400)); // Optimized for demo
+    await new Promise(r => setTimeout(r, 150)); // Fast: just show the log line
 
     // Step 2: Create Plan
-    logStep(`Detected ${analysis.complexity} complexity. Designing path...`);
+    logStep(`Detected ${analysis.complexity} complexity — designing path...`);
     const plan = await Agent.createPlan(analysis);
-    await new Promise(r => setTimeout(r, 500)); // Optimized for demo
+    await new Promise(r => setTimeout(r, 150)); // Fast
 
-    // Step 3: Execute Step 1
-    logStep('Executing plan: Building Foundational Content...');
-    await new Promise(r => setTimeout(r, 300)); // Optimized for demo
+    // Step 3: Generate all modules in parallel (instant)
+    logStep('Generating curriculum modules in parallel...');
     
-    // Convert plan to state modules
-    state.modules = await Promise.all(plan.map(async (p, idx) => {
-        const content = await Agent.generateContent(idx);
-        return {
-            title: p.action,
-            explanation: content.explanation,
-            examples: content.examples,
-            memory: content.followUp,
-            quiz: {
-                q: `Verification: ${p.objective}?`,
-                options: [{ t: 'Correct Objective', c: true }, { t: 'Incorrect Objective', c: false }],
-                exp: `The agent confirmed the ${p.objective} target.`
-            }
-        };
+    // Parallel content generation — all 3 modules built simultaneously
+    const contentResults = await Promise.all(plan.map((_, idx) => Agent.generateContent(idx)));
+    state.modules = contentResults.map((content, idx) => ({
+        title: plan[idx].action,
+        explanation: content.explanation,
+        examples: content.examples,
+        memory: content.followUp,
+        quiz: {
+            q: `Verification: ${plan[idx].objective}?`,
+            options: [{ t: 'Correct Objective', c: true }, { t: 'Incorrect Objective', c: false }],
+            exp: `The agent confirmed the ${plan[idx].objective} target.`
+        }
     }));
+    
+    await new Promise(r => setTimeout(r, 150)); // Brief pause to show completion log
+    logStep('✓ Curriculum ready. Loading module 1...');
 
     loadModule(0);
 }
