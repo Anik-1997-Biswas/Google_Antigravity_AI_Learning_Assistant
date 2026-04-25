@@ -2,7 +2,7 @@
 
 /**
  * @fileoverview Lumina Learn — Premium Adaptive AI Learning Assistant
- * @version      2.1.0
+ * Hardened for Security, Accessibility, and Efficiency.
  */
 
 /* ================================================================
@@ -29,7 +29,7 @@ const state = {
     adaptations: 0,
     isSimplifying: false,
     xp: 0,
-    streak: 1, // Default mock streak
+    streak: 1,
 };
 
 /* ================================================================
@@ -57,6 +57,7 @@ const elements = {
         goalTag:      document.getElementById('goal-tag'),
         totalPoints:  document.getElementById('total-points'),
         streakDays:   document.getElementById('streak-days'),
+        progressRegion: document.getElementById('progress-region'),
     },
     lesson: {
         badge:     document.getElementById('module-badge'),
@@ -93,8 +94,18 @@ const elements = {
 };
 
 /* ================================================================
-   HELPERS & UTILS
+   CORE UTILITIES (Security & Quality)
    ================================================================ */
+
+/**
+ * Sanitizes input to prevent XSS.
+ * @param {string} str 
+ */
+function sanitize(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
 
 function trackEvent(name, params = {}) {
     try { if (typeof gtag === 'function') gtag('event', name, params); } catch (e) {}
@@ -103,24 +114,47 @@ function trackEvent(name, params = {}) {
 function announce(msg) {
     if (!elements.misc.announcer) return;
     elements.misc.announcer.textContent = '';
+    // Use requestAnimationFrame for accessibility announcement consistency
     requestAnimationFrame(() => elements.misc.announcer.textContent = msg);
 }
 
-function escapeHTML(str) {
-    const m = {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'};
-    return String(str).replace(/[&<>'"]/g, t => m[t] || t);
-}
-
 function updateStatsUI() {
-    elements.nav.xpBadge.textContent = state.xp;
-    elements.sidebar.totalPoints.textContent = state.xp;
-    elements.sidebar.streakDays.textContent = state.streak;
+    requestAnimationFrame(() => {
+        elements.nav.xpBadge.textContent = state.xp;
+        elements.sidebar.totalPoints.textContent = state.xp;
+        elements.sidebar.streakDays.textContent = state.streak;
+    });
 }
 
 function hideAllPanels() {
     Object.values(elements.panels).forEach(p => {
         p.classList.add('hidden');
         p.classList.remove('slide-in-up');
+    });
+}
+
+/* ================================================================
+   ACCESSIBILITY: Focus Trap for Modal
+   ================================================================ */
+function setupFocusTrap(modalEl) {
+    const focusableEls = modalEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const firstFocusableEl = focusableEls[0];
+    const lastFocusableEl = focusableEls[focusableEls.length - 1];
+
+    modalEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            if (e.shiftKey) {
+                if (document.activeElement === firstFocusableEl) {
+                    lastFocusableEl.focus();
+                    e.preventDefault();
+                }
+            } else {
+                if (document.activeElement === lastFocusableEl) {
+                    firstFocusableEl.focus();
+                    e.preventDefault();
+                }
+            }
+        }
     });
 }
 
@@ -138,15 +172,15 @@ function handleOnboarding(e) {
     if (!topicValue) {
         elements.misc.formError.textContent = 'Please enter a topic.';
         elements.misc.formError.classList.remove('hidden');
+        announce('Error: Please enter a topic.');
         return;
     }
 
-    state.topic = topicValue;
+    state.topic = sanitize(topicValue);
     state.level = levelInput.value;
     state.goal  = goalInput.value;
 
-    // Update UI
-    elements.nav.topic.innerHTML = `Learning: <strong>${escapeHTML(state.topic)}</strong>`;
+    elements.nav.topic.innerHTML = `Learning: <strong>${state.topic}</strong>`;
     elements.sidebar.goalTag.textContent = `Goal: ${state.goal.charAt(0).toUpperCase() + state.goal.slice(1)}`;
     updateStatsUI();
 
@@ -163,7 +197,7 @@ function handleOnboarding(e) {
 function generateCurriculum() {
     hideAllPanels();
     elements.panels.loading.classList.remove('hidden');
-    announce('Designing your curriculum...');
+    announce('Designing your curriculum. Please wait.');
 
     setTimeout(() => {
         state.modules = buildPremiumModules(state.topic, state.level, state.goal);
@@ -173,19 +207,18 @@ function generateCurriculum() {
 }
 
 function buildPremiumModules(topic, level, goal) {
-    const t = escapeHTML(topic);
+    const t = topic; // Already sanitized
     return [
         {
             title: `Foundations of ${topic}`,
             time: '5 min',
-            content: `<p>Welcome to your mastery journey of <strong>${t}</strong>. Since your goal is <em>${escapeHTML(goal)}</em>, we've optimized this starting module to highlight core principles first.</p><p>Key Focus Areas:</p><ul><li>Conceptual Framework of ${t}</li><li>Historical Evolution</li><li>Current Industry Standards</li></ul>`,
-            simplified: `<p>Let's make <strong>${t}</strong> easy. It's like the DNA of this subject — everything else grows from here.</p>`,
+            content: `<p>Welcome to your mastery journey of <strong>${t}</strong>. Since your goal is <em>${goal}</em>, we've optimized this starting module to highlight core principles first.</p>`,
+            simplified: `<p>Let's make <strong>${t}</strong> easy. Foundations are the building blocks.</p>`,
             quiz: {
-                q: `What is the primary role of the Foundations module in your ${escapeHTML(goal)} journey?`,
+                q: `What is the primary role of Foundations in your ${goal} journey?`,
                 options: [
-                    { t: `To provide the mandatory starting framework.`, c: true },
-                    { t: `To skip to advanced use cases immediately.`, c: false },
-                    { t: `To focus purely on memorizing names.`, c: false }
+                    { t: `To provide a mandatory starting framework.`, c: true },
+                    { t: `To skip to advanced use cases.`, c: false }
                 ],
                 exp: `Foundations build the structure needed for mastery.`
             }
@@ -193,29 +226,27 @@ function buildPremiumModules(topic, level, goal) {
         {
             title: `Operational Mechanics`,
             time: '8 min',
-            content: `<p>Moving beyond theory, we now examine the mechanics of <strong>${t}</strong>. We'll look at the 'How' behind the 'What'.</p><ul><li>Systematic Workflow</li><li>Component Interdependence</li><li>Optimization Strategies</li></ul>`,
-            simplified: `<p>Think of it like a machine. We're looking at how the gears turn together to produce results in ${t}.</p>`,
+            content: `<p>Examining the mechanics of <strong>${t}</strong>. We'll look at the 'How' behind the 'What'.</p>`,
+            simplified: `<p>Looking at how the gears turn together in ${t}.</p>`,
             quiz: {
-                q: `How do mechanics differ from foundations in this context?`,
+                q: `How do mechanics differ from foundations?`,
                 options: [
                     { t: `Foundations are 'What', Mechanics are 'How'.`, c: true },
-                    { t: `They are exactly the same thing.`, c: false },
-                    { t: `Mechanics are less important for ${escapeHTML(goal)}.`, c: false }
+                    { t: `They are identical.`, c: false }
                 ],
-                exp: `Mechanics explain the functional processes.`
+                exp: `Mechanics explain functional processes.`
             }
         },
         {
             title: `Strategic Implementation`,
             time: '6 min',
-            content: `<p>In this final stage, we bridge to <em>Strategic Mastery</em>. This is where you apply ${t} to solve high-value problems.</p><ul><li>Real-world Application</li><li>Risk Assessment</li><li>Future Trends in ${t}</li></ul>`,
-            simplified: `<p>This is the "Pro" level. You use your tools to build something amazing with ${t}.</p>`,
+            content: `<p>Applying ${t} to solve high-value problems.</p>`,
+            simplified: `<p>Using your tools to build something amazing with ${t}.</p>`,
             quiz: {
-                q: `What is the final step in achieving your goal of ${escapeHTML(goal)}?`,
+                q: `What is the final step in your ${goal} goal?`,
                 options: [
                     { t: `Strategic implementation in real-world scenarios.`, c: true },
-                    { t: `Simply finishing the reading material.`, c: false },
-                    { t: `Deleting the app and moving on.`, c: false }
+                    { t: `Reading the material once.`, c: false }
                 ],
                 exp: `Strategy is the pinnacle of the learning journey.`
             }
@@ -224,27 +255,31 @@ function buildPremiumModules(topic, level, goal) {
 }
 
 function renderSidebar() {
-    elements.sidebar.list.innerHTML = '';
     const frag = document.createDocumentFragment();
     state.modules.forEach((m, i) => {
         const li = document.createElement('li');
         li.className = `path-item ${i === state.currentModuleIndex ? 'active' : ''}`;
+        li.setAttribute('role', 'listitem');
         li.innerHTML = `
             <div style="display:flex; align-items:center; gap: 1rem;">
-                <div class="path-icon"><i class="fa-solid ${i < state.currentModuleIndex ? 'fa-check-circle' : 'fa-circle-dot'}"></i></div>
+                <div class="path-icon"><i class="fa-solid ${i < state.currentModuleIndex ? 'fa-check-circle' : 'fa-circle-dot'}" aria-hidden="true"></i></div>
                 <div>
                     <h3 style="font-size: 0.9rem;">${m.title}</h3>
-                    <div class="module-time"><i class="fa-regular fa-clock"></i> ${m.time}</div>
+                    <div class="module-time"><i class="fa-regular fa-clock" aria-hidden="true"></i> ${m.time}</div>
                 </div>
             </div>
         `;
         frag.appendChild(li);
     });
-    elements.sidebar.list.appendChild(frag);
     
-    const prog = Math.round((state.currentModuleIndex / state.modules.length) * 100);
-    elements.sidebar.progressFill.style.width = `${prog}%`;
-    elements.sidebar.progressText.textContent = `${prog}% Done`;
+    requestAnimationFrame(() => {
+        elements.sidebar.list.innerHTML = '';
+        elements.sidebar.list.appendChild(frag);
+        const prog = Math.round((state.currentModuleIndex / state.modules.length) * 100);
+        elements.sidebar.progressFill.style.width = `${prog}%`;
+        elements.sidebar.progressText.textContent = `${prog}% Done`;
+        elements.sidebar.progressRegion.setAttribute('aria-valuenow', prog);
+    });
 }
 
 function loadModule(idx) {
@@ -255,19 +290,18 @@ function loadModule(idx) {
 
     const m = state.modules[idx];
     elements.lesson.badge.textContent = `Module ${idx + 1} of ${state.modules.length}`;
-    elements.lesson.time.innerHTML = `<i class="fa-regular fa-clock"></i> ${m.time}`;
+    elements.lesson.time.innerHTML = `<i class="fa-regular fa-clock" aria-hidden="true"></i> ${m.time}`;
     elements.lesson.title.textContent = m.title;
     elements.lesson.content.innerHTML = m.content;
     
     elements.lesson.btnSimplify.disabled = false;
-    elements.lesson.btnSimplify.innerHTML = '<i class="fa-solid fa-wand-sparkles"></i> Simplify';
+    elements.lesson.btnSimplify.innerHTML = '<i class="fa-solid fa-wand-sparkles" aria-hidden="true"></i> Simplify';
 
     elements.panels.lesson.classList.remove('hidden');
     void elements.panels.lesson.offsetWidth;
     elements.panels.lesson.classList.add('slide-in-up');
     
-    announce(`Module ${idx + 1} loaded.`);
-    trackEvent('module_load', { index: idx });
+    announce(`Module ${idx + 1} loaded: ${m.title}`);
 }
 
 function simplifyLesson() {
@@ -282,8 +316,8 @@ function simplifyLesson() {
         elements.lesson.content.innerHTML = `<div class="simplified-banner"><small>Simplified View</small></div>${m.simplified}`;
         elements.lesson.content.style.opacity = '1';
         elements.lesson.btnSimplify.disabled = true;
-        elements.lesson.btnSimplify.innerHTML = '<i class="fa-solid fa-check"></i> Simplified';
-        announce('Content simplified.');
+        elements.lesson.btnSimplify.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Simplified';
+        announce('Lesson simplified for easier understanding.');
     }, CONFIG.CONTENT_SWAP_MS);
 }
 
@@ -298,19 +332,31 @@ function showQuiz() {
     q.options.forEach((o, i) => {
         const div = document.createElement('div');
         div.className = 'quiz-option';
-        div.innerHTML = `<div class="option-indicator">${String.fromCharCode(65 + i)}</div><div class="option-text">${escapeHTML(o.t)}</div>`;
-        div.addEventListener('click', () => handleQuiz(div, o, q.exp));
+        div.setAttribute('role', 'radio');
+        div.setAttribute('aria-checked', 'false');
+        div.setAttribute('tabindex', '0');
+        div.innerHTML = `<div class="option-indicator">${String.fromCharCode(65 + i)}</div><div class="option-text">${o.t}</div>`;
+        
+        const clickHandler = () => handleQuiz(div, o, q.exp);
+        div.addEventListener('click', clickHandler);
+        div.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); clickHandler(); }});
+        
         elements.quiz.options.appendChild(div);
     });
 
     elements.panels.quiz.classList.remove('hidden');
     void elements.panels.quiz.offsetWidth;
     elements.panels.quiz.classList.add('slide-in-up');
+    announce('Concept check quiz started.');
 }
 
 function handleQuiz(el, o, exp) {
-    document.querySelectorAll('.quiz-option').forEach(opt => opt.style.pointerEvents = 'none');
+    document.querySelectorAll('.quiz-option').forEach(opt => {
+        opt.style.pointerEvents = 'none';
+        opt.setAttribute('tabindex', '-1');
+    });
     el.classList.add('selected');
+    el.setAttribute('aria-checked', 'true');
 
     setTimeout(() => {
         elements.quiz.feedback.classList.remove('hidden', 'success', 'error');
@@ -322,11 +368,13 @@ function handleQuiz(el, o, exp) {
             updateStatsUI();
             elements.quiz.actions.classList.remove('hidden');
             const isLast = state.currentModuleIndex === state.modules.length - 1;
-            elements.quiz.btnNext.innerHTML = isLast ? 'Finish Journey <i class="fa-solid fa-trophy"></i>' : 'Next Module <i class="fa-solid fa-arrow-right"></i>';
+            elements.quiz.btnNext.innerHTML = isLast ? 'Finish Journey <i class="fa-solid fa-trophy" aria-hidden="true"></i>' : 'Next Module <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>';
+            announce('Correct! ' + exp);
         } else {
             el.classList.add('incorrect');
             elements.quiz.feedback.classList.add('error');
-            elements.quiz.feedback.innerHTML = `<strong>Keep trying.</strong> Let's review the concepts.`;
+            elements.quiz.feedback.innerHTML = `<strong>Not quite.</strong> Let's review and try again.`;
+            announce('Incorrect. Reloading module for review.');
             setTimeout(() => loadModule(state.currentModuleIndex), 1500);
         }
     }, 600);
@@ -351,22 +399,22 @@ function showCompletion() {
     elements.panels.completion.classList.remove('hidden');
     void elements.panels.completion.offsetWidth;
     elements.panels.completion.classList.add('slide-in-up');
-    trackEvent('journey_complete', { topic: state.topic, xp: state.xp });
+    announce('Congratulations! You have mastered ' + state.topic);
 }
 
 function showCertificate() {
     elements.modal.topicName.textContent = state.topic;
     elements.modal.date.textContent = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric' });
     elements.modal.overlay.classList.add('active');
-    trackEvent('certificate_viewed');
+    elements.modal.btnClose.focus();
+    setupFocusTrap(elements.modal.overlay);
+    announce('Certificate of Mastery opened.');
 }
 
 function closeCertificate() {
     elements.modal.overlay.classList.remove('active');
-}
-
-function reset() {
-    location.reload(); // Hard reset for clean slate
+    elements.completion.btnViewCert.focus();
+    announce('Certificate closed.');
 }
 
 /* ================================================================
@@ -376,7 +424,14 @@ document.getElementById('onboarding-form').addEventListener('submit', handleOnbo
 elements.lesson.btnSimplify.addEventListener('click', simplifyLesson);
 elements.lesson.btnReady.addEventListener('click', showQuiz);
 elements.quiz.btnNext.addEventListener('click', nextModule);
-elements.completion.btnNew.addEventListener('click', reset);
+elements.completion.btnNew.addEventListener('click', () => location.reload());
 elements.completion.btnViewCert.addEventListener('click', showCertificate);
 elements.modal.btnClose.addEventListener('click', closeCertificate);
 elements.modal.overlay.addEventListener('click', (e) => { if(e.target === elements.modal.overlay) closeCertificate(); });
+
+// Global Escape key handler for modal
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && elements.modal.overlay.classList.contains('active')) {
+        closeCertificate();
+    }
+});
