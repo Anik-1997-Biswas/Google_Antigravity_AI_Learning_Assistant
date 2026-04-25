@@ -1,29 +1,14 @@
 {
   "name": "lumina-learn",
   "version": "2.1.0",
-  "description": "Premium AI Learning Assistant with adaptive curriculum.",
-  "main": "app.js",
+  "private": true,
   "scripts": {
-    "test": "jest",
-    "lint": "eslint .",
-    "start": "serve ."
+    "test": "node --test tests/*.test.js",
+    "lint": "npx eslint .",
+    "start": "npx serve ."
   },
-  "keywords": [
-    "ai",
-    "education",
-    "adaptive-learning",
-    "google-cloud"
-  ],
-  "author": "Lumina AI Team",
-  "license": "MIT",
   "devDependencies": {
-    "jest": "^29.0.0",
-    "jest-environment-jsdom": "^29.0.0",
     "eslint": "^8.0.0",
     "serve": "^14.0.0"
-  },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "verbose": true
   }
 }
