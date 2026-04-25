@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumina - AI Learning Companion</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Background Elements -->
+        <div class="bg-orb orb-1"></div>
+        <div class="bg-orb orb-2"></div>
+        <div class="bg-orb orb-3"></div>
+
+        <!-- Onboarding Screen -->
+        <main id="onboarding-screen" class="screen active fade-in">
+            <div class="glass-panel onboarding-card">
+                <div class="logo-container">
+                    <i class="fa-solid fa-brain glowing-icon"></i>
+                    <h1>Lumina <span class="gradient-text">Learn</span></h1>
+                </div>
+                <p class="subtitle">Your intelligent, adaptive learning companion.</p>
+                
+                <form id="onboarding-form" class="onboarding-form">
+                    <div class="input-group">
+                        <label for="topic-input">What topic do you want to learn?</label>
+                        <input type="text" id="topic-input" placeholder="e.g., Quantum Computing, Python, World War II" required autocomplete="off">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>What is your current level?</label>
+                        <div class="level-selector">
+                            <input type="radio" id="level-beginner" name="level" value="beginner" checked>
+                            <label for="level-beginner" class="level-btn">
+                                <i class="fa-solid fa-seedling"></i> Beginner
+                            </label>
+                            
+                            <input type="radio" id="level-intermediate" name="level" value="intermediate">
+                            <label for="level-intermediate" class="level-btn">
+                                <i class="fa-solid fa-tree"></i> Intermediate
+                            </label>
+                            
+                            <input type="radio" id="level-advanced" name="level" value="advanced">
+                            <label for="level-advanced" class="level-btn">
+                                <i class="fa-solid fa-mountain"></i> Advanced
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="primary-btn pulse-hover">
+                        Start Learning Journey <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+        </main>
+
+        <!-- Dashboard Screen -->
+        <main id="dashboard-screen" class="screen hidden">
+            <nav class="glass-navbar">
+                <div class="nav-logo">
+                    <i class="fa-solid fa-brain"></i>
+                    <span class="gradient-text">Lumina</span>
+                </div>
+                <div class="nav-topic" id="nav-topic-display">
+                    Learning: <strong>Topic</strong>
+                </div>
+                <div class="nav-level badge" id="nav-level-display">Level</div>
+            </nav>
+
+            <div class="dashboard-grid">
+                <!-- Sidebar: Learning Path -->
+                <aside class="glass-panel sidebar slide-in-left">
+                    <div class="sidebar-header">
+                        <h2><i class="fa-solid fa-map-location-dot"></i> Your Path</h2>
+                        <div class="progress-container">
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="overall-progress" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text" id="progress-text">0% Completed</span>
+                        </div>
+                    </div>
+                    <ul class="learning-path-list" id="learning-path-list">
+                        <!-- Populated by JS -->
+                    </ul>
+                </aside>
+
+                <!-- Main Content Area -->
+                <section class="main-content slide-in-up">
+                    <!-- Loading State -->
+                    <div id="ai-loading" class="glass-panel loading-panel hidden">
+                        <div class="spinner"></div>
+                        <p>Lumina is analyzing your level and designing your curriculum...</p>
+                    </div>
+
+                    <!-- Lesson Module -->
+                    <div id="lesson-module" class="glass-panel lesson-panel hidden">
+                        <div class="lesson-header">
+                            <span class="badge" id="module-badge">Module 1</span>
+                            <h2 id="lesson-title">Lesson Title</h2>
+                        </div>
+                        
+                        <div class="lesson-content-area" id="lesson-content">
+                            <!-- AI Generated Content goes here -->
+                        </div>
+
+                        <div class="lesson-actions">
+                            <button id="btn-simplify" class="secondary-btn"><i class="fa-solid fa-down-long"></i> Simplify</button>
+                            <button id="btn-ready-quiz" class="primary-btn">I Understand <i class="fa-solid fa-check"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz/Diagnostic Module -->
+                    <div id="quiz-module" class="glass-panel quiz-panel hidden">
+                        <div class="quiz-header">
+                            <h3><i class="fa-solid fa-clipboard-question"></i> Concept Check</h3>
+                            <p>Let's verify your understanding before moving on.</p>
+                        </div>
+                        
+                        <div class="quiz-question" id="quiz-question">
+                            <!-- Question text -->
+                        </div>
+                        
+                        <div class="quiz-options" id="quiz-options">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <div id="quiz-feedback" class="quiz-feedback hidden">
+                            <!-- Feedback text -->
+                        </div>
+
+                        <div class="quiz-actions hidden" id="quiz-actions">
+                            <button id="btn-next-module" class="primary-btn">Next Module <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Completion Module -->
+                    <div id="completion-module" class="glass-panel completion-panel hidden text-center">
+                        <div class="completion-icon">
+                            <i class="fa-solid fa-trophy glowing-icon" style="font-size: 4rem; color: var(--accent-gold)"></i>
+                        </div>
+                        <h2 class="gradient-text">Journey Complete!</h2>
+                        <p>You've successfully mastered the fundamentals of <strong id="completion-topic">this topic</strong> at your level.</p>
+                        <div class="stats-row">
+                            <div class="stat-box">
+                                <h3>Modules</h3>
+                                <p id="stat-modules">0</p>
+                            </div>
+                            <div class="stat-box">
+                                <h3>Adaptations</h3>
+                                <p id="stat-adaptations">0</p>
+                            </div>
+                        </div>
+                        <button id="btn-new-topic" class="primary-btn mt-4">Learn Something New</button>
+                    </div>
+
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
